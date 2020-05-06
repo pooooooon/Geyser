@@ -45,6 +45,7 @@ import org.geysermc.connector.network.translators.item.ItemEntry;
 import org.geysermc.connector.network.translators.item.ToolItemEntry;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Getter
@@ -193,11 +194,20 @@ public class Toolbox {
     /**
      * Get an InputStream for the given resource path, throws AssertionError if resource is not found
      *
+     * We check if resource exists relative to a "resources" folder in the jar folder and if not we
+     * use the built in resouruce. This allows overriding any resource easily at runtime.
+     *
      * @param resource Resource to get
      * @return InputStream of the given resource
      */
     public InputStream getResource(String resource) {
         String resourceName = edition.getEdition().replace(".", "_") + "/" + edition.getVersion().replace(".", "_") + "/" + resource;
+        // First try open file under a resources folder. We use this try format so we don't close it
+        try {
+            return new FileInputStream(Paths.get("resources", resource).toFile());
+        } catch (IOException ignored) {
+        }
+
         InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(resourceName);
         if (stream == null) {
             throw new AssertionError("Unable to find resource: " + resourceName);

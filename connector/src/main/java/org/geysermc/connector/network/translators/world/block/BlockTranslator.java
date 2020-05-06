@@ -44,6 +44,7 @@ import org.geysermc.connector.network.translators.world.block.entity.BlockEntity
 import org.geysermc.connector.network.translators.world.block.entity.BlockEntityTranslator;
 import org.geysermc.connector.utils.Toolbox;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -115,6 +116,14 @@ public class BlockTranslator {
         } catch (Exception e) {
             throw new AssertionError("Unable to load Java block mappings", e);
         }
+
+        // Load Block Overrides
+        JsonNode blocksOverride = null;
+        try (InputStream is = Toolbox.getResource("overrides/blocks.json")) {
+            blocksOverride = Toolbox.JSON_MAPPER.readTree(is);
+        } catch (IOException ignored) {
+        }
+
         Object2IntMap<CompoundTag> addedStatesMap = new Object2IntOpenHashMap<>();
         addedStatesMap.defaultReturnValue(-1);
         List<CompoundTag> paletteList = new ArrayList<>();
@@ -128,6 +137,12 @@ public class BlockTranslator {
             javaRuntimeId++;
             Map.Entry<String, JsonNode> entry = blocksIterator.next();
             String javaId = entry.getKey();
+
+            // Check for an override
+            if (blocksOverride != null && blocksOverride.has(javaId)) {
+                entry = new AbstractMap.SimpleEntry<>(javaId, blocksOverride.get(javaId));
+            }
+
             BlockState javaBlockState = new BlockState(javaRuntimeId);
             CompoundTag blockTag = buildBedrockState(entry.getValue());
 
