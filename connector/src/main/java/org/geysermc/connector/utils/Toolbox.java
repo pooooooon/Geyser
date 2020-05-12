@@ -206,8 +206,8 @@ public class Toolbox {
      * @param resource Resource to get
      * @return InputStream of the given resource
      */
-    public static InputStream getResource(String resource) {
-        InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(resource);
+    public InputStream getResource(String resource) {
+        InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(version + "/" + resource);
         if (stream == null) {
             throw new AssertionError("Unable to find resource: " + resource);
         }
