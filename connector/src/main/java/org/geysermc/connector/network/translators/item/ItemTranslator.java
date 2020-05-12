@@ -134,18 +134,18 @@ public class ItemTranslator {
     }
 
     public ItemEntry getItem(ItemStack stack) {
-        return Toolbox.ITEM_ENTRIES.get(stack.getId());
+        return Toolbox.INSTANCE.ITEM_ENTRIES.get(stack.getId());
     }
 
     public ItemEntry getItem(ItemData data) {
-        for (ItemEntry itemEntry : Toolbox.ITEM_ENTRIES.values()) {
+        for (ItemEntry itemEntry : Toolbox.INSTANCE.ITEM_ENTRIES.values()) {
             if (itemEntry.getBedrockId() == data.getId() && (itemEntry.getBedrockData() == data.getDamage() || itemEntry.getJavaIdentifier().endsWith("potion"))) {
                 return itemEntry;
             }
         }
         // If item find was unsuccessful first time, we try again while ignoring damage
         // Fixes piston, sticky pistons, dispensers and droppers turning into air from creative inventory
-        for (ItemEntry itemEntry : Toolbox.ITEM_ENTRIES.values()) {
+        for (ItemEntry itemEntry : Toolbox.INSTANCE.ITEM_ENTRIES.values()) {
             if (itemEntry.getBedrockId() == data.getId()) {
                 return itemEntry;
             }
@@ -156,7 +156,7 @@ public class ItemTranslator {
     }
 
     public ItemEntry getItemEntry(String javaIdentifier) {
-        return javaIdentifierMap.computeIfAbsent(javaIdentifier, key -> Toolbox.ITEM_ENTRIES.values()
+        return javaIdentifierMap.computeIfAbsent(javaIdentifier, key -> Toolbox.INSTANCE.ITEM_ENTRIES.values()
                 .stream().filter(itemEntry -> itemEntry.getJavaIdentifier().equals(key)).findFirst().orElse(null));
     }
 

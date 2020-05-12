@@ -64,6 +64,14 @@ public interface GeyserConfiguration {
         String getMotd1();
 
         String getMotd2();
+
+        IEducationConfiguration getEducation();
+
+        interface IEducationConfiguration {
+            boolean isEnabled();
+
+            String getToken();
+        }
     }
 
     interface IRemoteConfiguration {

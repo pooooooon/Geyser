@@ -83,6 +83,15 @@ public class GeyserStandaloneConfiguration implements GeyserConfiguration {
 
         private String motd1;
         private String motd2;
+
+        private EducationConfiguration education;
+
+        @Getter
+        public static class EducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
+            private boolean enabled;
+            private String token;
+        }
+
     }
 
     @Getter

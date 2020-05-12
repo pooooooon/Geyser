@@ -57,10 +57,10 @@ public class EffectUtils {
 
     static {
         /* Load particles */
-        InputStream particleStream = Toolbox.getResource("mappings/particles.json");
+        InputStream particleStream = Toolbox.INSTANCE.getResource("mappings/particles.json");
         JsonNode particleEntries;
         try {
-            particleEntries = Toolbox.JSON_MAPPER.readTree(particleStream);
+            particleEntries = Toolbox.INSTANCE.JSON_MAPPER.readTree(particleStream);
         } catch (Exception e) {
             throw new AssertionError("Unable to load particle map", e);
         }
@@ -85,10 +85,10 @@ public class EffectUtils {
         }
 
         /* Load effects */
-        InputStream effectsStream = Toolbox.getResource("mappings/effects.json");
+        InputStream effectsStream = Toolbox.INSTANCE.getResource("mappings/effects.json");
         JsonNode effects;
         try {
-            effects = Toolbox.JSON_MAPPER.readTree(effectsStream);
+            effects = Toolbox.INSTANCE.JSON_MAPPER.readTree(effectsStream);
         } catch (Exception e) {
             throw new AssertionError("Unable to load effects mappings", e);
         }

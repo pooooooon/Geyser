@@ -48,23 +48,32 @@ import java.util.*;
 
 public class Toolbox {
 
-    public static final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-    public static final CompoundTag BIOMES;
-    public static final ItemData[] CREATIVE_ITEMS;
+    public static Toolbox INSTANCE;
 
-    public static final List<StartGamePacket.ItemEntry> ITEMS = new ArrayList<>();
+    public final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
+    public final CompoundTag BIOMES;
+    public final ItemData[] CREATIVE_ITEMS;
 
-    public static final Int2ObjectMap<ItemEntry> ITEM_ENTRIES = new Int2ObjectOpenHashMap<>();
+    public final List<StartGamePacket.ItemEntry> ITEMS = new ArrayList<>();
 
-    public static CompoundTag ENTITY_IDENTIFIERS;
+    public final Int2ObjectMap<ItemEntry> ITEM_ENTRIES = new Int2ObjectOpenHashMap<>();
 
-    public static int BARRIER_INDEX = 0;
+    public CompoundTag ENTITY_IDENTIFIERS;
 
-    static {
+    public int BARRIER_INDEX = 0;
+
+
+
+    public final String version;
+
+    public Toolbox(String version) {
+        this.version = version;
+        INSTANCE = this;
+
         /* Load biomes */
-        InputStream biomestream = GeyserConnector.class.getClassLoader().getResourceAsStream("bedrock/biome_definitions.dat");
+        InputStream biomestream = GeyserConnector.class.getClassLoader().getResourceAsStream(version + "/data/biome_definitions.dat");
         if (biomestream == null) {
-            throw new AssertionError("Unable to find bedrock/biome_definitions.dat");
+            throw new AssertionError("Unable to find " + version + "/biome_definitions.dat");
         }
 
         CompoundTag biomesTag;
@@ -78,7 +87,7 @@ public class Toolbox {
         }
 
         /* Load item palette */
-        InputStream stream = getResource("bedrock/items.json");
+        InputStream stream = getResource("data/items.json");
 
         TypeReference<List<JsonNode>> itemEntriesType = new TypeReference<List<JsonNode>>() {
         };
@@ -150,7 +159,7 @@ public class Toolbox {
         SoundHandlerRegistry.init();
 
         /* Load creative items */
-        stream = getResource("bedrock/creative_items.json");
+        stream = getResource("data/creative_items.json");
 
         JsonNode creativeItemEntries;
         try {
@@ -182,7 +191,7 @@ public class Toolbox {
 
 
         /* Load entity identifiers */
-        stream = Toolbox.getResource("bedrock/entity_identifiers.dat");
+        stream = getResource("data/entity_identifiers.dat");
 
         try (NBTInputStream nbtInputStream = NbtUtils.createNetworkReader(stream)) {
             ENTITY_IDENTIFIERS = (CompoundTag) nbtInputStream.readTag();
@@ -205,7 +214,7 @@ public class Toolbox {
         return stream;
     }
 
-    public static void init() {
-        // no-op
+    public static void init(String version) {
+        new Toolbox(version);
     }
 }

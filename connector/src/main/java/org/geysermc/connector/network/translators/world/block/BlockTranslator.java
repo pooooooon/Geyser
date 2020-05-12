@@ -73,7 +73,7 @@ public class BlockTranslator {
 
     static {
         /* Load block palette */
-        InputStream stream = Toolbox.getResource("bedrock/runtime_block_states.dat");
+        InputStream stream = Toolbox.INSTANCE.getResource("data/runtime_block_states.dat");
 
         ListTag<CompoundTag> blocksTag;
         try (NBTInputStream nbtInputStream = NbtUtils.createNetworkReader(stream)) {
@@ -85,15 +85,23 @@ public class BlockTranslator {
         Map<CompoundTag, CompoundTag> blockStateMap = new HashMap<>();
 
         for (CompoundTag tag : blocksTag.getValue()) {
-            if (blockStateMap.putIfAbsent(tag.getCompound("block"), tag) != null) {
+            CompoundTagBuilder tagBuilder = CompoundTag.builder();
+
+            tagBuilder.tag(tag.getCompound("block"));
+
+            if (tag.getShort("meta", (short) -1) != -1) {
+                tagBuilder.shortTag("meta", tag.getShort("meta"));
+            }
+
+            if (blockStateMap.putIfAbsent(tagBuilder.build("ref"), tag) != null) {
                 throw new AssertionError("Duplicate block states in Bedrock palette");
             }
         }
 
-        stream = Toolbox.getResource("mappings/blocks.json");
+        stream = Toolbox.INSTANCE.getResource("mappings/blocks.json");
         JsonNode blocks;
         try {
-            blocks = Toolbox.JSON_MAPPER.readTree(stream);
+            blocks = Toolbox.INSTANCE.JSON_MAPPER.readTree(stream);
         } catch (Exception e) {
             throw new AssertionError("Unable to load Java block mappings", e);
         }
@@ -223,31 +231,50 @@ public class BlockTranslator {
 
     private static CompoundTag buildBedrockState(JsonNode node) {
         CompoundTagBuilder tagBuilder = CompoundTag.builder();
-        tagBuilder.stringTag("name", node.get("bedrock_identifier").textValue())
-                .intTag("version", BlockTranslator.BLOCK_STATE_VERSION);
+        tagBuilder.stringTag("name", node.get("bedrock_identifier").textValue());
 
-        CompoundTagBuilder statesBuilder = CompoundTag.builder();
+        // @TODO: I don't like this. Potentially fixed with better multi-version support later - Bundie
+        if (!Toolbox.INSTANCE.version.equals("education")) {
+            tagBuilder.intTag("version", BlockTranslator.BLOCK_STATE_VERSION);
 
-        // check for states
-        if (node.has("bedrock_states")) {
-            Iterator<Map.Entry<String, JsonNode>> statesIterator = node.get("bedrock_states").fields();
+            CompoundTagBuilder statesBuilder = CompoundTag.builder();
 
-            while (statesIterator.hasNext()) {
-                Map.Entry<String, JsonNode> stateEntry = statesIterator.next();
-                JsonNode stateValue = stateEntry.getValue();
-                switch (stateValue.getNodeType()) {
-                    case BOOLEAN:
-                        statesBuilder.booleanTag(stateEntry.getKey(), stateValue.booleanValue());
-                        continue;
-                    case STRING:
-                        statesBuilder.stringTag(stateEntry.getKey(), stateValue.textValue());
-                        continue;
-                    case NUMBER:
-                        statesBuilder.intTag(stateEntry.getKey(), stateValue.intValue());
+            // check for states
+            if (node.has("bedrock_states")) {
+                Iterator<Map.Entry<String, JsonNode>> statesIterator = node.get("bedrock_states").fields();
+
+                while (statesIterator.hasNext()) {
+                    Map.Entry<String, JsonNode> stateEntry = statesIterator.next();
+                    JsonNode stateValue = stateEntry.getValue();
+                    switch (stateValue.getNodeType()) {
+                        case BOOLEAN:
+                            statesBuilder.booleanTag(stateEntry.getKey(), stateValue.booleanValue());
+                            continue;
+                        case STRING:
+                            statesBuilder.stringTag(stateEntry.getKey(), stateValue.textValue());
+                            continue;
+                        case NUMBER:
+                            statesBuilder.intTag(stateEntry.getKey(), stateValue.intValue());
+                    }
                 }
             }
+
+            tagBuilder.tag(statesBuilder.build("states"));
         }
-        return tagBuilder.tag(statesBuilder.build("states")).build("block");
+
+        tagBuilder = CompoundTagBuilder.builder()
+                .tag(tagBuilder.build("block"));
+
+        if (Toolbox.INSTANCE.version.equals("education")) {
+            // Add Meta tag
+            if (node.has("meta")) {
+                tagBuilder.shortTag("meta", node.get("meta").shortValue());
+            } else {
+                tagBuilder.shortTag("meta", (short) 0);
+            }
+        }
+
+        return tagBuilder.build("ref");
     }
 
     public static int getBedrockBlockId(BlockState state) {

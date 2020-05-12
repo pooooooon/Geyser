@@ -27,6 +27,7 @@ package org.geysermc.connector;
 
 import com.nukkitx.protocol.bedrock.BedrockPacketCodec;
 import com.nukkitx.protocol.bedrock.BedrockServer;
+import com.nukkitx.protocol.bedrock.v363.Bedrock_v363;
 import com.nukkitx.protocol.bedrock.v390.Bedrock_v390;
 import lombok.Getter;
 import org.geysermc.common.AuthType;
@@ -54,7 +55,7 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class GeyserConnector {
 
-    public static final BedrockPacketCodec BEDROCK_PACKET_CODEC = Bedrock_v390.V390_CODEC;
+    public final BedrockPacketCodec BEDROCK_PACKET_CODEC;
 
     public static final String NAME = "Geyser";
     public static final String VERSION = "DEV"; // A fallback for running in IDEs
@@ -65,6 +66,8 @@ public class GeyserConnector {
 
     private RemoteServer remoteServer;
     private AuthType authType;
+
+    private String signedToken;
 
     private boolean shuttingDown = false;
 
@@ -99,7 +102,15 @@ public class GeyserConnector {
 
         logger.setDebug(config.isDebugMode());
 
-        Toolbox.init();
+        if (config.getBedrock().getEducation() != null && config.getBedrock().getEducation().isEnabled()) {
+            BEDROCK_PACKET_CODEC = Bedrock_v363.V363_CODEC;
+            signedToken = config.getBedrock().getEducation().getToken();
+            Toolbox.init("education");
+        } else {
+            BEDROCK_PACKET_CODEC = Bedrock_v390.V390_CODEC;
+            Toolbox.init("bedrock");
+        }
+
         Translators.start();
 
         remoteServer = new RemoteServer(config.getRemote().getAddress(), config.getRemote().getPort());

@@ -47,10 +47,10 @@ public class SoundUtils {
 
     static {
         /* Load sound mappings */
-        InputStream stream  = Toolbox.getResource("mappings/sounds.json");
+        InputStream stream  = Toolbox.INSTANCE.getResource("mappings/sounds.json");
         JsonNode soundsTree;
         try {
-            soundsTree = Toolbox.JSON_MAPPER.readTree(stream);
+            soundsTree = Toolbox.INSTANCE.JSON_MAPPER.readTree(stream);
         } catch (IOException e) {
             throw new AssertionError("Unable to load sound mappings", e);
         }
