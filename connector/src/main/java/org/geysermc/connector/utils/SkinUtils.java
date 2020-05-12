@@ -214,19 +214,19 @@ public class SkinUtils {
         GeyserConnector.getInstance().getLogger().info("Registering bedrock skin for " + playerEntity.getUsername() + " (" + playerEntity.getUuid() + ")");
 
         try {
-            byte[] skinBytes = com.github.steveice10.mc.auth.util.Base64.decode(clientData.getSkinData().getBytes("UTF-8"));
+            byte[] skinBytes = Base64.getDecoder().decode(clientData.getSkinData().getBytes("UTF-8"));
             byte[] capeBytes = clientData.getCapeData();
 
             byte[] geometryNameBytes;
             byte[] geometryBytes;
 
             if (clientData.getGeometryName() != null) {
-                geometryNameBytes = com.github.steveice10.mc.auth.util.Base64.decode(clientData.getGeometryName().getBytes("UTF-8"));
-                geometryBytes = com.github.steveice10.mc.auth.util.Base64.decode(clientData.getGeometryData().getBytes("UTF-8"));
+                geometryNameBytes = Base64.getDecoder().decode(clientData.getGeometryName().getBytes("UTF-8"));
+                geometryBytes = Base64.getDecoder().decode(clientData.getGeometryData().getBytes("UTF-8"));
             } else {
                 // Legacy Skin Geometry
                 geometryNameBytes = clientData.getLegacyGeometryName().getBytes();
-                geometryBytes = com.github.steveice10.mc.auth.util.Base64.decode(clientData.getLegacyGeometryData().getBytes("UTF-8"));
+                geometryBytes = Base64.getDecoder().decode(clientData.getLegacyGeometryData().getBytes("UTF-8"));
             }
 
             if (skinBytes.length <= (128 * 128 * 4) && !clientData.isPersonaSkin()) {
