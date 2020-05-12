@@ -15,6 +15,17 @@ bedrock:
   # The MOTD that will be broadcasted to Minecraft: Bedrock Edition clients
   motd1: "GeyserMC"
   motd2: "Another GeyserMC forced host."
+
+  # Minecraft Education Edition Support. Note you can't run both MCPE and MCEE on the same port.
+  education:
+    enabled: false
+
+    # Education edition requires a signed token. You can retrieve this by running an edu-friendly ProxyPass
+    # between two MCEE devices and copying the 'jwt' from the ServerToClientHandshakePacket (everything after jwt=
+    # and before the closing brace. The token only allows clients in the same Tenant to connect and doesn't
+    # seem to ever expire
+    #token: eyJhbG...-i8dWx
+
 remote:
   # The IP address of the remote (Java Edition) server
   address: 127.0.0.1

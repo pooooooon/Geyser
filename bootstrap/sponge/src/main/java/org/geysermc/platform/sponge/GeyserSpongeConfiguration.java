@@ -124,10 +124,16 @@ public class GeyserSpongeConfiguration implements GeyserConfiguration {
         return metricsInfo;
     }
 
-    @AllArgsConstructor
+
     public class SpongeBedrockConfiguration implements IBedrockConfiguration {
 
         private ConfigurationNode node;
+        private SpongeEducationConfiguration education;
+
+        public SpongeBedrockConfiguration(ConfigurationNode node) {
+            this.node = node;
+            education = new SpongeEducationConfiguration(node.getNode("education"));
+        }
 
         @Override
         public String getAddress() {
@@ -147,6 +153,27 @@ public class GeyserSpongeConfiguration implements GeyserConfiguration {
         @Override
         public String getMotd2() {
             return node.getNode("motd2").getString("GeyserMC");
+        }
+
+        @Override
+        public IEducationConfiguration getEducation() {
+            return education;
+        }
+
+        @AllArgsConstructor
+        public class SpongeEducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
+
+            private ConfigurationNode node;
+
+            @Override
+            public boolean isEnabled() {
+                return node.getNode("enabled").getBoolean(false);
+            }
+
+            @Override
+            public String getToken() {
+                return node.getNode("token").getString(null);
+            }
         }
     }
 

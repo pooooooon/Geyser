@@ -59,11 +59,15 @@ public class ConnectorServerEventHandler implements BedrockServerEventHandler {
         ServerStatusInfo serverInfo = connector.getPassthroughThread().getInfo();
 
         BedrockPong pong = new BedrockPong();
-        pong.setEdition("MCPE");
+        if (config.getBedrock().getEducation() != null && config.getBedrock().getEducation().isEnabled()) {
+            pong.setEdition("MCEE");
+        } else {
+            pong.setEdition("MCPE");
+        }
         pong.setGameType("Default");
         pong.setNintendoLimited(false);
-        pong.setProtocolVersion(GeyserConnector.BEDROCK_PACKET_CODEC.getProtocolVersion());
-        pong.setVersion(GeyserConnector.BEDROCK_PACKET_CODEC.getMinecraftVersion());
+        pong.setProtocolVersion(connector.BEDROCK_PACKET_CODEC.getProtocolVersion());
+        pong.setVersion(connector.BEDROCK_PACKET_CODEC.getMinecraftVersion());
         pong.setIpv4Port(config.getBedrock().getPort());
         if (connector.getConfig().isPingPassthrough() && serverInfo != null) {
             String[] motd = MessageUtils.getBedrockMessage(serverInfo.getDescription()).split("\n");
@@ -103,6 +107,6 @@ public class ConnectorServerEventHandler implements BedrockServerEventHandler {
                 connector.removePlayer(player);
             }
         });
-        bedrockServerSession.setPacketCodec(GeyserConnector.BEDROCK_PACKET_CODEC);
+        bedrockServerSession.setPacketCodec(connector.BEDROCK_PACKET_CODEC);
     }
 }

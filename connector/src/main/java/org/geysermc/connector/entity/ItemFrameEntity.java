@@ -100,7 +100,7 @@ public class ItemFrameEntity extends Entity {
             CompoundTagBuilder builder = CompoundTag.builder();
 
             String blockName = "";
-            for (StartGamePacket.ItemEntry startGamePacketItemEntry: Toolbox.ITEMS) {
+            for (StartGamePacket.ItemEntry startGamePacketItemEntry: Toolbox.INSTANCE.ITEMS) {
                 if (startGamePacketItemEntry.getId() == (short) itemEntry.getBedrockId()) {
                     blockName = startGamePacketItemEntry.getIdentifier();
                     break;

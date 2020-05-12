@@ -111,7 +111,7 @@ public class JavaDeclareRecipesTranslator extends PacketTranslator<ServerDeclare
                     GroupedItem groupedItem = entry.getKey();
                     int idCount = 0;
                     //not optimal
-                    for (ItemEntry itemEntry : Toolbox.ITEM_ENTRIES.values()) {
+                    for (ItemEntry itemEntry : Toolbox.INSTANCE.ITEM_ENTRIES.values()) {
                         if (itemEntry.getBedrockId() == groupedItem.id) {
                             idCount++;
                         }

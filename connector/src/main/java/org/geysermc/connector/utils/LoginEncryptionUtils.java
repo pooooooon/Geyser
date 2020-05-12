@@ -29,7 +29,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.nukkitx.network.util.Preconditions;
 import com.nukkitx.protocol.bedrock.packet.LoginPacket;
 import com.nukkitx.protocol.bedrock.packet.ServerToClientHandshakePacket;
@@ -52,11 +56,14 @@ import org.geysermc.connector.network.session.cache.WindowCache;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
+import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
+import java.util.Base64;
 import java.util.UUID;
 
 public class LoginEncryptionUtils {
@@ -139,6 +146,22 @@ public class LoginEncryptionUtils {
         }
     }
 
+    public static JWSObject createHandshakeJwt(KeyPair serverKeyPair, byte[] token, String signedToken) throws JOSEException {
+        URI x5u = URI.create(Base64.getEncoder().encodeToString(serverKeyPair.getPublic().getEncoded()));
+
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
+        claimsBuilder.claim("salt", Base64.getEncoder().encodeToString(token));
+
+        if (signedToken != null && !signedToken.isEmpty()) {
+            claimsBuilder.claim("signedToken", signedToken);
+        }
+
+        SignedJWT jwt = new SignedJWT((new com.nimbusds.jose.JWSHeader.Builder(JWSAlgorithm.ES384)).x509CertURL(x5u).build(),
+                claimsBuilder.build());
+        EncryptionUtils.signJwt(jwt, (ECPrivateKey)serverKeyPair.getPrivate());
+        return jwt;
+    }
+
     private static void startEncryptionHandshake(GeyserSession session, PublicKey key) throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(new ECGenParameterSpec("secp384r1"));
@@ -149,7 +172,7 @@ public class LoginEncryptionUtils {
         session.getUpstream().getSession().enableEncryption(encryptionKey);
 
         ServerToClientHandshakePacket packet = new ServerToClientHandshakePacket();
-        packet.setJwt(EncryptionUtils.createHandshakeJwt(serverKeyPair, token).serialize());
+        packet.setJwt(createHandshakeJwt(serverKeyPair, token, session.getConnector().getSignedToken()).serialize());
         session.sendUpstreamPacketImmediately(packet);
     }
 

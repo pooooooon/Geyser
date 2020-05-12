@@ -189,16 +189,16 @@ public class GeyserSession implements CommandSender {
         ChunkUtils.sendEmptyChunks(this, playerEntity.getPosition().toInt(), 0, false);
 
         BiomeDefinitionListPacket biomeDefinitionListPacket = new BiomeDefinitionListPacket();
-        biomeDefinitionListPacket.setTag(Toolbox.BIOMES);
+        biomeDefinitionListPacket.setTag(Toolbox.INSTANCE.BIOMES);
         upstream.sendPacket(biomeDefinitionListPacket);
 
         AvailableEntityIdentifiersPacket entityPacket = new AvailableEntityIdentifiersPacket();
-        entityPacket.setTag(Toolbox.ENTITY_IDENTIFIERS);
+        entityPacket.setTag(Toolbox.INSTANCE.ENTITY_IDENTIFIERS);
         upstream.sendPacket(entityPacket);
 
         InventoryContentPacket creativePacket = new InventoryContentPacket();
         creativePacket.setContainerId(ContainerId.CREATIVE);
-        creativePacket.setContents(Toolbox.CREATIVE_ITEMS);
+        creativePacket.setContents(Toolbox.INSTANCE.CREATIVE_ITEMS);
         upstream.sendPacket(creativePacket);
 
         PlayStatusPacket playStatusPacket = new PlayStatusPacket();
@@ -476,7 +476,7 @@ public class GeyserSession implements CommandSender {
         startGamePacket.setEnchantmentSeed(0);
         startGamePacket.setMultiplayerCorrelationId("");
         startGamePacket.setBlockPalette(BlockTranslator.BLOCKS);
-        startGamePacket.setItemEntries(Toolbox.ITEMS);
+        startGamePacket.setItemEntries(Toolbox.INSTANCE.ITEMS);
         startGamePacket.setVanillaVersion("*");
         // startGamePacket.setMovementServerAuthoritative(true);
         upstream.sendPacket(startGamePacket);

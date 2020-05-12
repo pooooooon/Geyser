@@ -45,7 +45,7 @@ public class PotionTranslator extends ItemStackTranslator {
     private List<ItemEntry> appliedItems;
 
     public PotionTranslator() {
-        appliedItems = Toolbox.ITEM_ENTRIES.values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("potion")).collect(Collectors.toList());
+        appliedItems = Toolbox.INSTANCE.ITEM_ENTRIES.values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("potion")).collect(Collectors.toList());
     }
 
     @Override
