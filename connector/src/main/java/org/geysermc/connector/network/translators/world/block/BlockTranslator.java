@@ -121,7 +121,7 @@ public class BlockTranslator {
         JsonNode blocksOverride = null;
         try (InputStream is = Toolbox.getResource("overrides/blocks.json")) {
             blocksOverride = Toolbox.JSON_MAPPER.readTree(is);
-        } catch (IOException ignored) {
+        } catch (IOException | AssertionError ignored) {
         }
 
         Object2IntMap<CompoundTag> addedStatesMap = new Object2IntOpenHashMap<>();
