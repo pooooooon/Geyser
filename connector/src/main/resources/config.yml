@@ -22,8 +22,9 @@ bedrock:
 
     # Education edition requires a signed token. You can retrieve this by running an edu-friendly ProxyPass
     # between two MCEE devices and copying the 'jwt' from the ServerToClientHandshakePacket (everything after jwt=
-    # and before the closing brace. The token only allows clients in the same Tenant to connect and doesn't
-    # seem to ever expire
+    # and before the closing brace into the 'encoded' box at https://jwt.io.  From the decoded side copy the
+    # value of "signedToken" into this config entry. It should be in the format UUID|DATESTAMP|SIGNATURE.
+    # The token only allows clients in the same Tenant to connect. Ignore this when not using Education Mode.
     #token: eyJhbG...-i8dWx
 
 remote:
