@@ -45,7 +45,7 @@ public class BannerTranslator extends ItemStackTranslator {
     private List<ItemEntry> appliedItems;
 
     public BannerTranslator() {
-        appliedItems = Toolbox.ITEM_ENTRIES.values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("banner")).collect(Collectors.toList());
+        appliedItems = Toolbox.INSTANCE.ITEM_ENTRIES.values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("banner")).collect(Collectors.toList());
     }
 
     @Override
