@@ -29,8 +29,10 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.steveice10.mc.protocol.data.game.ClientRequest;
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientRequestPacket;
+import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
+import com.nukkitx.protocol.bedrock.packet.RespawnPacket;
 import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
@@ -62,11 +64,14 @@ public class BedrockActionTranslator extends PacketTranslator<PlayerActionPacket
 
         switch (packet.getAction()) {
             case RESPAWN:
+                RespawnPacket respawnPacket = new RespawnPacket();
+                respawnPacket.setRuntimeEntityId(0);
+                respawnPacket.setPosition(Vector3f.ZERO);
+                respawnPacket.setState(RespawnPacket.State.SERVER_SEARCHING);
+                session.sendUpstreamPacket(respawnPacket);
+
                 ClientRequestPacket javaRespawnPacket = new ClientRequestPacket(ClientRequest.RESPAWN);
                 session.sendDownstreamPacket(javaRespawnPacket);
-
-                // Don't put anything here as respawn is already handled
-                // in BedrockRespawnTranslator
                 break;
             case START_SWIMMING:
                 ClientPlayerStatePacket startSwimPacket = new ClientPlayerStatePacket((int) entity.getEntityId(), PlayerState.START_SPRINTING);
