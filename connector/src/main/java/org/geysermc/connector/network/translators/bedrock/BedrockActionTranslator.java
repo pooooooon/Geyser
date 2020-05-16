@@ -27,6 +27,8 @@ package org.geysermc.connector.network.translators.bedrock;
 
 import java.util.concurrent.TimeUnit;
 
+import com.github.steveice10.mc.protocol.data.game.ClientRequest;
+import com.github.steveice10.mc.protocol.packet.ingame.client.ClientRequestPacket;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import org.geysermc.connector.entity.Entity;
@@ -50,6 +52,7 @@ public class BedrockActionTranslator extends PacketTranslator<PlayerActionPacket
 
     @Override
     public void translate(PlayerActionPacket packet, GeyserSession session) {
+
         Entity entity = session.getPlayerEntity();
         if (entity == null)
             return;
@@ -59,6 +62,9 @@ public class BedrockActionTranslator extends PacketTranslator<PlayerActionPacket
 
         switch (packet.getAction()) {
             case RESPAWN:
+                ClientRequestPacket javaRespawnPacket = new ClientRequestPacket(ClientRequest.RESPAWN);
+                session.sendDownstreamPacket(javaRespawnPacket);
+
                 // Don't put anything here as respawn is already handled
                 // in BedrockRespawnTranslator
                 break;
