@@ -159,16 +159,22 @@ public class GeyserBungeeConfiguration implements GeyserConfiguration {
         }
 
         @Override
+        public String getEdition() {
+            return config.getString("bedrock.edition", "bedrock");
+        }
+
+        @Override
+        public String getVersion() {
+            return config.getString("bedrock.version", "lastest");
+        }
+
+
+        @Override
         public IEducationConfiguration getEducation() {
             return education;
         }
 
         public class BungeeEducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
-            @Override
-            public boolean isEnabled() {
-                return config.getBoolean("bedrock.education.enabled");
-            }
-
             @Override
             public String getToken() {
                 return config.getString("bedrock.education.token");

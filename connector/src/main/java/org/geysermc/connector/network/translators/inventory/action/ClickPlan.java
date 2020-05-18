@@ -29,11 +29,12 @@ import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
 import com.github.steveice10.mc.protocol.data.game.window.WindowAction;
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientConfirmTransactionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientWindowActionPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.inventory.PlayerInventory;
+import org.geysermc.connector.inventory.SlotType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.SlotType;
 import org.geysermc.connector.utils.InventoryUtils;
 
 import java.util.ArrayList;
@@ -67,14 +68,14 @@ class ClickPlan {
             if (translator.getSlotType(action.slot) == SlotType.OUTPUT) {
                 if (cursorItem == null && clickedItem != null) {
                     playerInventory.setCursor(clickedItem);
-                } else if (InventoryUtils.canStack(cursorItem, clickedItem)) {
+                } else if (GeyserEdition.INVENTORY_UTILS.canStack(cursorItem, clickedItem)) {
                     playerInventory.setCursor(new ItemStack(cursorItem.getId(),
                             cursorItem.getAmount() + clickedItem.getAmount(), cursorItem.getNbt()));
                 }
             } else {
                 switch (action.click) {
                     case LEFT:
-                        if (!InventoryUtils.canStack(cursorItem, clickedItem)) {
+                        if (!GeyserEdition.INVENTORY_UTILS.canStack(cursorItem, clickedItem)) {
                             playerInventory.setCursor(clickedItem);
                             inventory.setItem(action.slot, cursorItem);
                         } else {
@@ -95,7 +96,7 @@ class ClickPlan {
                                     cursorItem.getAmount() - 1, cursorItem.getNbt()));
                             inventory.setItem(action.slot, new ItemStack(cursorItem.getId(),
                                     1, cursorItem.getNbt()));
-                        } else if (InventoryUtils.canStack(cursorItem, clickedItem)) {
+                        } else if (GeyserEdition.INVENTORY_UTILS.canStack(cursorItem, clickedItem)) {
                             playerInventory.setCursor(new ItemStack(cursorItem.getId(),
                                     cursorItem.getAmount() - 1, cursorItem.getNbt()));
                             inventory.setItem(action.slot, new ItemStack(clickedItem.getId(),

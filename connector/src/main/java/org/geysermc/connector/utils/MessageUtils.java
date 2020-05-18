@@ -1,36 +1,47 @@
 /*
  * Copyright (c) 2019-2020 GeyserMC. http://geysermc.org
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  *
- * @author GeyserMC
- * @link https://github.com/GeyserMC/Geyser
+ *  @author GeyserMC
+ *  @link https://github.com/GeyserMC/Geyser
+ *
  */
 
 package org.geysermc.connector.utils;
 
 import com.github.steveice10.mc.protocol.data.game.scoreboard.TeamColor;
-import com.github.steveice10.mc.protocol.data.message.*;
-import com.google.gson.*;
+import com.github.steveice10.mc.protocol.data.message.ChatColor;
+import com.github.steveice10.mc.protocol.data.message.ChatFormat;
+import com.github.steveice10.mc.protocol.data.message.Message;
+import com.github.steveice10.mc.protocol.data.message.MessageStyle;
+import com.github.steveice10.mc.protocol.data.message.TranslationMessage;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import lombok.Getter;
 import net.kyori.text.Component;
 import net.kyori.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 
 import java.util.ArrayList;
@@ -39,9 +50,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Getter
 public class MessageUtils {
 
-    public static List<String> getTranslationParams(Message[] messages, String locale) {
+    private GeyserEdition edition;
+
+    public MessageUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    public List<String> getTranslationParams(Message[] messages, String locale) {
         List<String> strings = new ArrayList<>();
         for (Message message : messages) {
             if (message instanceof TranslationMessage) {
@@ -77,16 +95,16 @@ public class MessageUtils {
         return strings;
     }
 
-    public static List<String> getTranslationParams(Message[] messages) {
+    public List<String> getTranslationParams(Message[] messages) {
         return getTranslationParams(messages, null);
     }
 
-    public static String getTranslationText(TranslationMessage message) {
+    public String getTranslationText(TranslationMessage message) {
         return getFormat(message.getStyle().getFormats()) + getColorOrParent(message.getStyle())
                 + "%" + message.getTranslationKey();
     }
 
-    public static String getTranslatedBedrockMessage(Message message, String locale, boolean shouldTranslate) {
+    public String getTranslatedBedrockMessage(Message message, String locale, boolean shouldTranslate) {
         JsonParser parser = new JsonParser();
         if (isMessage(message.getText())) {
             JsonObject object = parser.parse(message.getText()).getAsJsonObject();
@@ -125,11 +143,11 @@ public class MessageUtils {
         return builder.toString();
     }
 
-    public static String getTranslatedBedrockMessage(Message message, String locale) {
+    public String getTranslatedBedrockMessage(Message message, String locale) {
         return getTranslatedBedrockMessage(message, locale, true);
     }
 
-    public static String getBedrockMessage(Message message) {
+    public String getBedrockMessage(Message message) {
         if (isMessage(message.getText())) {
             return getBedrockMessage(message.getText());
         } else {
@@ -137,16 +155,16 @@ public class MessageUtils {
         }
     }
 
-    public static String getBedrockMessage(String message) {
+    public String getBedrockMessage(String message) {
         Component component = phraseJavaMessage(message);
         return LegacyComponentSerializer.legacy().serialize(component);
     }
 
-    public static Component phraseJavaMessage(String message) {
+    public Component phraseJavaMessage(String message) {
         return GsonComponentSerializer.INSTANCE.deserialize(message);
     }
 
-    public static String getJavaMessage(String message) {
+    public String getJavaMessage(String message) {
         Component component = LegacyComponentSerializer.legacy().deserialize(message);
         return GsonComponentSerializer.INSTANCE.serialize(component);
     }
@@ -158,7 +176,7 @@ public class MessageUtils {
      * @param params  A list of parameter strings
      * @return Parsed message with all params inserted as needed
      */
-    public static String insertParams(String message, List<String> params) {
+    public String insertParams(String message, List<String> params) {
         String newMessage = message;
 
         Pattern p = Pattern.compile("%([1-9])\\$s");
@@ -186,7 +204,7 @@ public class MessageUtils {
      * @param style The style to get the colour from
      * @return Colour string to be used
      */
-    private static String getColorOrParent(MessageStyle style) {
+    private String getColorOrParent(MessageStyle style) {
         ChatColor chatColor = style.getColor();
 
         if (chatColor == ChatColor.NONE && style.getParent() != null) {
@@ -202,7 +220,7 @@ public class MessageUtils {
      * @param color ChatColor to convert
      * @return The converted color string
      */
-    private static String getColor(ChatColor color) {
+    private String getColor(ChatColor color) {
         String base = "\u00a7";
         switch (color) {
             case BLACK:
@@ -270,7 +288,7 @@ public class MessageUtils {
      * @param formats ChatFormats to convert
      * @return The converted chat formatting string
      */
-    private static String getFormat(List<ChatFormat> formats) {
+    private String getFormat(List<ChatFormat> formats) {
         StringBuilder str = new StringBuilder();
         for (ChatFormat cf : formats) {
             String base = "\u00a7";
@@ -306,7 +324,7 @@ public class MessageUtils {
      * @param text String to test
      * @return True if its a valid message json string, false if not
      */
-    public static boolean isMessage(String text) {
+    public boolean isMessage(String text) {
         JsonParser parser = new JsonParser();
         try {
             JsonObject object = parser.parse(text).getAsJsonObject();
@@ -321,7 +339,7 @@ public class MessageUtils {
         return true;
     }
 
-    public static JsonObject formatJson(JsonObject object) {
+    public JsonObject formatJson(JsonObject object) {
         if (object.has("hoverEvent")) {
             JsonObject sub = (JsonObject) object.get("hoverEvent");
             JsonElement element = sub.get("value");
@@ -345,7 +363,7 @@ public class MessageUtils {
         return object;
     }
 
-    public static String toChatColor(TeamColor teamColor) {
+    public String toChatColor(TeamColor teamColor) {
         for (ChatColor color : ChatColor.values()) {
             if (color.name().equals(teamColor.name())) {
                 return getColor(color);
@@ -366,7 +384,7 @@ public class MessageUtils {
      * @param session GeyserSession for the user
      * @return True if the message is too long, false if not
      */
-    public static boolean isTooLong(String message, GeyserSession session) {
+    public boolean isTooLong(String message, GeyserSession session) {
         if (message.length() > 256) {
             // TODO: Add Geyser localization and translate this based on language
             session.sendMessage("Your message is bigger than 256 characters (" + message.length() + ") so it has not been sent.");

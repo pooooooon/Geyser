@@ -1,26 +1,27 @@
 /*
  * Copyright (c) 2019-2020 GeyserMC. http://geysermc.org
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  *
- * @author GeyserMC
- * @link https://github.com/GeyserMC/Geyser
+ *  @author GeyserMC
+ *  @link https://github.com/GeyserMC/Geyser
+ *
  */
 
 package org.geysermc.connector.utils;
@@ -34,53 +35,52 @@ import com.nukkitx.nbt.stream.NBTInputStream;
 import com.nukkitx.nbt.tag.CompoundTag;
 import com.nukkitx.protocol.bedrock.data.ItemData;
 import com.nukkitx.protocol.bedrock.packet.StartGamePacket;
-
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-
+import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.translators.item.ItemEntry;
 import org.geysermc.connector.network.translators.item.ToolItemEntry;
-import org.geysermc.connector.network.translators.sound.SoundHandlerRegistry;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
+@Getter
 public class Toolbox {
 
-    public static Toolbox INSTANCE;
+    public static final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
 
-    public final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-    public final CompoundTag BIOMES;
-    public final ItemData[] CREATIVE_ITEMS;
+    private final CompoundTag biomes;
+    private final ItemData[] creativeItems;
 
-    public final List<StartGamePacket.ItemEntry> ITEMS = new ArrayList<>();
+    private final List<StartGamePacket.ItemEntry> items = new ArrayList<>();
 
-    public final Int2ObjectMap<ItemEntry> ITEM_ENTRIES = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<ItemEntry> itemEntries = new Int2ObjectOpenHashMap<>();
+    private final GeyserEdition edition;
+    private CompoundTag entityIdentifiers;
+    private int barrierIndex = 0;
 
-    public CompoundTag ENTITY_IDENTIFIERS;
-
-    public int BARRIER_INDEX = 0;
-
-
-
-    public final String version;
-
-    public Toolbox(String version) {
-        this.version = version;
-        INSTANCE = this;
+    public Toolbox(GeyserEdition edition) {
+        this.edition = edition;
 
         /* Load biomes */
-        InputStream biomestream = GeyserConnector.class.getClassLoader().getResourceAsStream(version + "/data/biome_definitions.dat");
+        InputStream biomestream = getResource("data/biome_definitions.dat");
         if (biomestream == null) {
-            throw new AssertionError("Unable to find " + version + "/biome_definitions.dat");
+            throw new AssertionError("Unable to load biome definitions");
         }
 
         CompoundTag biomesTag;
 
-        try (NBTInputStream biomenbtInputStream = NbtUtils.createNetworkReader(biomestream)){
+        try (NBTInputStream biomenbtInputStream = NbtUtils.createNetworkReader(biomestream)) {
             biomesTag = (CompoundTag) biomenbtInputStream.readTag();
-            BIOMES = biomesTag;
+            biomes = biomesTag;
         } catch (Exception ex) {
             GeyserConnector.getInstance().getLogger().warning("Failed to get biomes from biome definitions, is there something wrong with the file?");
             throw new AssertionError(ex);
@@ -100,7 +100,7 @@ public class Toolbox {
         }
 
         for (JsonNode entry : itemEntries) {
-            ITEMS.add(new StartGamePacket.ItemEntry(entry.get("name").textValue(), (short) entry.get("id").intValue()));
+            items.add(new StartGamePacket.ItemEntry(entry.get("name").textValue(), (short) entry.get("id").intValue()));
         }
 
         stream = getResource("mappings/items.json");
@@ -118,7 +118,7 @@ public class Toolbox {
             Map.Entry<String, JsonNode> entry = iterator.next();
             if (entry.getValue().has("tool_type")) {
                 if (entry.getValue().has("tool_tier")) {
-                    ITEM_ENTRIES.put(itemIndex, new ToolItemEntry(
+                    this.itemEntries.put(itemIndex, new ToolItemEntry(
                             entry.getKey(), itemIndex,
                             entry.getValue().get("bedrock_id").intValue(),
                             entry.getValue().get("bedrock_data").intValue(),
@@ -126,7 +126,7 @@ public class Toolbox {
                             entry.getValue().get("tool_tier").textValue(),
                             entry.getValue().get("is_block").booleanValue()));
                 } else {
-                    ITEM_ENTRIES.put(itemIndex, new ToolItemEntry(
+                    this.itemEntries.put(itemIndex, new ToolItemEntry(
                             entry.getKey(), itemIndex,
                             entry.getValue().get("bedrock_id").intValue(),
                             entry.getValue().get("bedrock_data").intValue(),
@@ -135,28 +135,21 @@ public class Toolbox {
                             entry.getValue().get("is_block").booleanValue()));
                 }
             } else {
-                ITEM_ENTRIES.put(itemIndex, new ItemEntry(
+                this.itemEntries.put(itemIndex, new ItemEntry(
                         entry.getKey(), itemIndex,
                         entry.getValue().get("bedrock_id").intValue(),
                         entry.getValue().get("bedrock_data").intValue(),
                         entry.getValue().get("is_block").booleanValue()));
             }
             if (entry.getKey().equals("minecraft:barrier")) {
-                BARRIER_INDEX = itemIndex;
+                barrierIndex = itemIndex;
             }
 
             itemIndex++;
         }
 
-        // Load particle/effect mappings
-        EffectUtils.init();
-        // Load sound mappings
-        SoundUtils.init();
         // Load the locale data
         LocaleUtils.init();
-
-        // Load sound handlers
-        SoundHandlerRegistry.init();
 
         /* Load creative items */
         stream = getResource("data/creative_items.json");
@@ -187,14 +180,14 @@ public class Toolbox {
                 creativeItems.add(ItemData.of(itemNode.get("id").asInt(), damage, 1));
             }
         }
-        CREATIVE_ITEMS = creativeItems.toArray(new ItemData[0]);
+        this.creativeItems = creativeItems.toArray(new ItemData[0]);
 
 
         /* Load entity identifiers */
         stream = getResource("data/entity_identifiers.dat");
 
         try (NBTInputStream nbtInputStream = NbtUtils.createNetworkReader(stream)) {
-            ENTITY_IDENTIFIERS = (CompoundTag) nbtInputStream.readTag();
+            entityIdentifiers = (CompoundTag) nbtInputStream.readTag();
         } catch (Exception e) {
             throw new AssertionError("Unable to get entities from entity identifiers", e);
         }
@@ -207,14 +200,11 @@ public class Toolbox {
      * @return InputStream of the given resource
      */
     public InputStream getResource(String resource) {
-        InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(version + "/" + resource);
+        String resourceName = edition.getEdition().replace(".", "_") + "/" + edition.getVersion().replace(".", "_") + "/" + resource;
+        InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(resourceName);
         if (stream == null) {
-            throw new AssertionError("Unable to find resource: " + resource);
+            throw new AssertionError("Unable to find resource: " + resourceName);
         }
         return stream;
-    }
-
-    public static void init(String version) {
-        new Toolbox(version);
     }
 }

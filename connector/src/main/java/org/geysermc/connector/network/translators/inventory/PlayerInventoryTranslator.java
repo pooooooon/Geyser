@@ -1,26 +1,27 @@
 /*
  * Copyright (c) 2019-2020 GeyserMC. http://geysermc.org
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  *
- * @author GeyserMC
- * @link https://github.com/GeyserMC/Geyser
+ *  @author GeyserMC
+ *  @link https://github.com/GeyserMC/Geyser
+ *
  */
 
 package org.geysermc.connector.network.translators.inventory;
@@ -34,61 +35,26 @@ import com.nukkitx.protocol.bedrock.data.InventorySource;
 import com.nukkitx.protocol.bedrock.data.ItemData;
 import com.nukkitx.protocol.bedrock.packet.InventoryContentPacket;
 import com.nukkitx.protocol.bedrock.packet.InventorySlotPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
+import org.geysermc.connector.inventory.SlotType;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.inventory.action.InventoryActionDataTranslator;
-import org.geysermc.connector.utils.InventoryUtils;
-import org.geysermc.connector.utils.Toolbox;
 
 import java.util.List;
 
 public class PlayerInventoryTranslator extends InventoryTranslator {
-    private static final ItemData UNUSUABLE_CRAFTING_SPACE_BLOCK = InventoryUtils.createUnusableSpaceBlock(
+    private static final ItemData UNUSUABLE_CRAFTING_SPACE_BLOCK = GeyserEdition.INVENTORY_UTILS.createUnusableSpaceBlock(
             "The creative crafting grid is\nunavailable in Java Edition");
 
     public PlayerInventoryTranslator() {
         super(46);
     }
 
-    @Override
-    public void updateInventory(GeyserSession session, Inventory inventory) {
-        updateCraftingGrid(session, inventory);
-
-        InventoryContentPacket inventoryContentPacket = new InventoryContentPacket();
-        inventoryContentPacket.setContainerId(ContainerId.INVENTORY);
-        ItemData[] contents = new ItemData[36];
-        // Inventory
-        for (int i = 9; i < 36; i++) {
-            contents[i] = Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(i));
-        }
-        // Hotbar
-        for (int i = 36; i < 45; i++) {
-            contents[i - 36] = Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(i));
-        }
-        inventoryContentPacket.setContents(contents);
-        session.sendUpstreamPacket(inventoryContentPacket);
-
-        // Armor
-        InventoryContentPacket armorContentPacket = new InventoryContentPacket();
-        armorContentPacket.setContainerId(ContainerId.ARMOR);
-        contents = new ItemData[4];
-        for (int i = 5; i < 9; i++) {
-            contents[i - 5] = Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(i));
-        }
-        armorContentPacket.setContents(contents);
-        session.sendUpstreamPacket(armorContentPacket);
-
-        // Offhand
-        InventoryContentPacket offhandPacket = new InventoryContentPacket();
-        offhandPacket.setContainerId(ContainerId.OFFHAND);
-        offhandPacket.setContents(new ItemData[]{Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(45))});
-        session.sendUpstreamPacket(offhandPacket);
-    }
-
     /**
      * Update the crafting grid for the player to hide/show the barriers in the creative inventory
-     * @param session Session of the player
+     *
+     * @param session   Session of the player
      * @param inventory Inventory of the player
      */
     public static void updateCraftingGrid(GeyserSession session, Inventory inventory) {
@@ -100,12 +66,47 @@ public class PlayerInventoryTranslator extends InventoryTranslator {
 
             if (session.getGameMode() == GameMode.CREATIVE) {
                 slotPacket.setItem(UNUSUABLE_CRAFTING_SPACE_BLOCK);
-            }else{
-                slotPacket.setItem(Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(i)));
+            } else {
+                slotPacket.setItem(GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(i)));
             }
 
             session.sendUpstreamPacket(slotPacket);
         }
+    }
+
+    @Override
+    public void updateInventory(GeyserSession session, Inventory inventory) {
+        updateCraftingGrid(session, inventory);
+
+        InventoryContentPacket inventoryContentPacket = new InventoryContentPacket();
+        inventoryContentPacket.setContainerId(ContainerId.INVENTORY);
+        ItemData[] contents = new ItemData[36];
+        // Inventory
+        for (int i = 9; i < 36; i++) {
+            contents[i] = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(i));
+        }
+        // Hotbar
+        for (int i = 36; i < 45; i++) {
+            contents[i - 36] = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(i));
+        }
+        inventoryContentPacket.setContents(contents);
+        session.sendUpstreamPacket(inventoryContentPacket);
+
+        // Armor
+        InventoryContentPacket armorContentPacket = new InventoryContentPacket();
+        armorContentPacket.setContainerId(ContainerId.ARMOR);
+        contents = new ItemData[4];
+        for (int i = 5; i < 9; i++) {
+            contents[i - 5] = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(i));
+        }
+        armorContentPacket.setContents(contents);
+        session.sendUpstreamPacket(armorContentPacket);
+
+        // Offhand
+        InventoryContentPacket offhandPacket = new InventoryContentPacket();
+        offhandPacket.setContainerId(ContainerId.OFFHAND);
+        offhandPacket.setContents(new ItemData[]{GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(45))});
+        session.sendUpstreamPacket(offhandPacket);
     }
 
     @Override
@@ -126,12 +127,12 @@ public class PlayerInventoryTranslator extends InventoryTranslator {
                 slotPacket.setContainerId(ContainerId.CURSOR);
                 slotPacket.setSlot(slot + 27);
             }
-            slotPacket.setItem(Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(slot)));
+            slotPacket.setItem(GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(slot)));
             session.sendUpstreamPacket(slotPacket);
         } else if (slot == 45) {
             InventoryContentPacket offhandPacket = new InventoryContentPacket();
             offhandPacket.setContainerId(ContainerId.OFFHAND);
-            offhandPacket.setContents(new ItemData[]{Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(slot))});
+            offhandPacket.setContents(new ItemData[]{GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(slot))});
             session.sendUpstreamPacket(offhandPacket);
         }
     }
@@ -187,7 +188,7 @@ public class PlayerInventoryTranslator extends InventoryTranslator {
             for (InventoryActionData action : actions) {
                 if (action.getSource().getContainerId() == ContainerId.CURSOR && (action.getSlot() >= 28 && 31 >= action.getSlot())) {
                     updateInventory(session, inventory);
-                    InventoryUtils.updateCursor(session);
+                    GeyserEdition.INVENTORY_UTILS.updateCursor(session);
                     return;
                 }
             }
@@ -202,7 +203,7 @@ public class PlayerInventoryTranslator extends InventoryTranslator {
                         if (action.getToItem().getId() == 0) {
                             javaItem = new ItemStack(-1, 0, null);
                         } else {
-                            javaItem = Translators.getItemTranslator().translateToJava(session, action.getToItem());
+                            javaItem = GeyserEdition.TRANSLATORS.getItemTranslator().translateToJava(session, action.getToItem());
                         }
                         ClientCreativeInventoryActionPacket creativePacket = new ClientCreativeInventoryActionPacket(javaSlot, javaItem);
                         session.sendDownstreamPacket(creativePacket);
@@ -210,13 +211,13 @@ public class PlayerInventoryTranslator extends InventoryTranslator {
                         break;
                     case ContainerId.CURSOR:
                         if (action.getSlot() == 0) {
-                            session.getInventory().setCursor(Translators.getItemTranslator().translateToJava(session, action.getToItem()));
+                            session.getInventory().setCursor(GeyserEdition.TRANSLATORS.getItemTranslator().translateToJava(session, action.getToItem()));
                         }
                         break;
                     case ContainerId.NONE:
                         if (action.getSource().getType() == InventorySource.Type.WORLD_INTERACTION
                                 && action.getSource().getFlag() == InventorySource.Flag.DROP_ITEM) {
-                            javaItem = Translators.getItemTranslator().translateToJava(session, action.getToItem());
+                            javaItem = GeyserEdition.TRANSLATORS.getItemTranslator().translateToJava(session, action.getToItem());
                             ClientCreativeInventoryActionPacket creativeDropPacket = new ClientCreativeInventoryActionPacket(-1, javaItem);
                             session.sendDownstreamPacket(creativeDropPacket);
                         }

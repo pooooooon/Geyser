@@ -16,16 +16,20 @@ bedrock:
   motd1: "GeyserMC"
   motd2: "Another GeyserMC forced host."
 
-  # Minecraft Education Edition Support. Note you can't run both MCPE and MCEE on the same port.
-  education:
-    enabled: false
+  # Edition - bedrock or education
+  edition: bedrock
 
-    # Education edition requires a signed token. You can retrieve this by running an edu-friendly ProxyPass
-    # between two MCEE devices and copying the 'jwt' from the ServerToClientHandshakePacket (everything after jwt=
-    # and before the closing brace into the 'encoded' box at https://jwt.io.  From the decoded side copy the
-    # value of "signedToken" into this config entry. It should be in the format UUID|UUID|DATESTAMP|SIGNATURE.
-    # The token only allows clients in the same Tenant to connect. Ignore this when not using Education Mode.
-    #token: eyJhbG...-i8dWx
+  # Version - Version number or latest for latest
+  version: latest
+
+  # Settings for education edition
+  education:
+  # Education edition requires a signed token. You can retrieve this by running an edu-friendly ProxyPass
+  # between two MCEE devices and copying the 'jwt' from the ServerToClientHandshakePacket (everything after jwt=
+  # and before the closing brace into the 'encoded' box at https://jwt.io.  From the decoded side copy the
+  # value of "signedToken" into this config entry. It should be in the format UUID|UUID|DATESTAMP|SIGNATURE.
+  # The token only allows clients in the same Tenant to connect. Ignore this when not using Education Mode.
+  #token: eyJhbG...-i8dWx
 
 remote:
   # The IP address of the remote (Java Edition) server

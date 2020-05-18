@@ -160,16 +160,21 @@ public class GeyserBukkitConfiguration implements GeyserConfiguration {
         }
 
         @Override
+        public String getEdition() {
+            return config.getString("edition", "bedrock");
+        }
+
+        @Override
+        public String getVersion() {
+            return config.getString("version", "latest");
+        }
+
+        @Override
         public IEducationConfiguration getEducation() {
             return education;
         }
 
         public class BukkitEducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
-            @Override
-            public boolean isEnabled() {
-                return config.getBoolean("bedrock.education.enabled");
-            }
-
             @Override
             public String getToken() {
                 return config.getString("bedrock.education.token");

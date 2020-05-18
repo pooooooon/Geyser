@@ -31,10 +31,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 public class LocaleUtils {
@@ -63,7 +70,7 @@ public class LocaleUtils {
     private static void generateAssetCache() {
         try {
             // Get the version manifest from Mojang
-            VersionManifest versionManifest = Toolbox.INSTANCE.JSON_MAPPER.readValue(WebUtils.getBody("https://launchermeta.mojang.com/mc/game/version_manifest.json"), VersionManifest.class);
+            VersionManifest versionManifest = Toolbox.JSON_MAPPER.readValue(WebUtils.getBody("https://launchermeta.mojang.com/mc/game/version_manifest.json"), VersionManifest.class);
 
             // Get the url for the latest version of the games manifest
             String latestInfoURL = "";
@@ -80,7 +87,7 @@ public class LocaleUtils {
             }
 
             // Get the individual version manifest
-            VersionInfo versionInfo = Toolbox.INSTANCE.JSON_MAPPER.readValue(WebUtils.getBody(latestInfoURL), VersionInfo.class);
+            VersionInfo versionInfo = Toolbox.JSON_MAPPER.readValue(WebUtils.getBody(latestInfoURL), VersionInfo.class);
 
             // Get the smallest jar for use when downloading the en_us locale, will be either the server or client
             int currentSize = Integer.MAX_VALUE;
@@ -92,13 +99,13 @@ public class LocaleUtils {
             }
 
             // Get the assets list
-            JsonNode assets = Toolbox.INSTANCE.JSON_MAPPER.readTree(WebUtils.getBody(versionInfo.getAssetIndex().getUrl())).get("objects");
+            JsonNode assets = Toolbox.JSON_MAPPER.readTree(WebUtils.getBody(versionInfo.getAssetIndex().getUrl())).get("objects");
 
             // Put each asset into an array for use later
             Iterator<Map.Entry<String, JsonNode>> assetIterator = assets.fields();
             while (assetIterator.hasNext()) {
                 Map.Entry<String, JsonNode> entry = assetIterator.next();
-                Asset asset = Toolbox.INSTANCE.JSON_MAPPER.treeToValue(entry.getValue(), Asset.class);
+                Asset asset = Toolbox.JSON_MAPPER.treeToValue(entry.getValue(), Asset.class);
                 ASSET_MAP.put(entry.getKey(), asset);
             }
         } catch (Exception e) {
@@ -173,7 +180,7 @@ public class LocaleUtils {
             // Parse the file as json
             JsonNode localeObj;
             try {
-                localeObj = Toolbox.INSTANCE.JSON_MAPPER.readTree(localeStream);
+                localeObj = Toolbox.JSON_MAPPER.readTree(localeStream);
             } catch (Exception e) {
                 throw new AssertionError("Unable to load Java edition lang map for " + locale, e);
             }

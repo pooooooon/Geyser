@@ -28,8 +28,8 @@ package org.geysermc.connector.network.translators.sound;
 
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
 import com.nukkitx.math.vector.Vector3f;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 
 import java.util.Map;
 
@@ -47,7 +47,7 @@ public interface BlockSoundInteractionHandler extends SoundInteractionHandler<St
      * @param identifier the identifier of the block
      */
     static void handleBlockInteraction(GeyserSession session, Vector3f position, String identifier) {
-        for (Map.Entry<SoundHandler, SoundInteractionHandler<?>> interactionEntry : SoundHandlerRegistry.INTERACTION_HANDLERS.entrySet()) {
+        for (Map.Entry<SoundHandler, SoundInteractionHandler<?>> interactionEntry : GeyserEdition.TRANSLATORS.getSoundHandlerRegistry().getInteractionHandlers().entrySet()) {
             if (!(interactionEntry.getValue() instanceof BlockSoundInteractionHandler)) {
                 continue;
             }
@@ -66,7 +66,7 @@ public interface BlockSoundInteractionHandler extends SoundInteractionHandler<St
                 if (itemInHand == null || itemInHand.getId() == 0) {
                     continue;
                 }
-                String handIdentifier = Translators.getItemTranslator().getItem(session.getInventory().getItemInHand()).getJavaIdentifier();
+                String handIdentifier = GeyserEdition.TRANSLATORS.getItemTranslator().getItem(session.getInventory().getItemInHand()).getJavaIdentifier();
                 boolean contains = false;
                 for (String itemIdentifier : interactionEntry.getKey().items()) {
                     if (handIdentifier.contains(itemIdentifier)) {

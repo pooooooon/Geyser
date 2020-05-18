@@ -1,41 +1,56 @@
 /*
  * Copyright (c) 2019-2020 GeyserMC. http://geysermc.org
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  *
- * @author GeyserMC
- * @link https://github.com/GeyserMC/Geyser
+ *  @author GeyserMC
+ *  @link https://github.com/GeyserMC/Geyser
+ *
  */
 
 package org.geysermc.connector.utils;
 
-import com.github.steveice10.opennbt.tag.builtin.*;
+import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
+import com.github.steveice10.opennbt.tag.builtin.IntTag;
+import com.github.steveice10.opennbt.tag.builtin.ListTag;
+import com.github.steveice10.opennbt.tag.builtin.ShortTag;
+import com.github.steveice10.opennbt.tag.builtin.StringTag;
+import com.github.steveice10.opennbt.tag.builtin.Tag;
 import com.nukkitx.nbt.CompoundTagBuilder;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class ItemUtils {
 
-    public static int getEnchantmentLevel(CompoundTag itemNBTData, String enchantmentId) {
+    private GeyserEdition edition;
+
+    public ItemUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    public int getEnchantmentLevel(CompoundTag itemNBTData, String enchantmentId) {
         ListTag enchantments = (itemNBTData == null ? null : itemNBTData.get("Enchantments"));
         if (enchantments != null) {
             int enchantmentLevel = 0;
@@ -57,7 +72,7 @@ public class ItemUtils {
      * @param patterns The patterns to convert
      * @return The new converted patterns
      */
-    public static com.nukkitx.nbt.tag.ListTag convertBannerPattern(ListTag patterns) {
+    public com.nukkitx.nbt.tag.ListTag convertBannerPattern(ListTag patterns) {
         List<com.nukkitx.nbt.tag.CompoundTag> tagsList = new ArrayList<>();
         for (com.github.steveice10.opennbt.tag.builtin.Tag patternTag : patterns.getValue()) {
             com.nukkitx.nbt.tag.CompoundTag newPatternTag = getBedrockBannerPattern((CompoundTag) patternTag);
@@ -75,7 +90,7 @@ public class ItemUtils {
      * @param pattern Java edition pattern nbt
      * @return The Bedrock edition format pattern nbt
      */
-    public static com.nukkitx.nbt.tag.CompoundTag getBedrockBannerPattern(CompoundTag pattern) {
+    public com.nukkitx.nbt.tag.CompoundTag getBedrockBannerPattern(CompoundTag pattern) {
         String patternName = (String) pattern.get("Pattern").getValue();
 
         // Return null if its the globe pattern as it doesn't exist on bedrock
@@ -96,7 +111,7 @@ public class ItemUtils {
      * @param patterns The patterns to convert
      * @return The new converted patterns
      */
-    public static ListTag convertBannerPattern(com.nukkitx.nbt.tag.ListTag patterns) {
+    public ListTag convertBannerPattern(com.nukkitx.nbt.tag.ListTag patterns) {
         List<Tag> tagsList = new ArrayList<>();
         for (Object patternTag : patterns.getValue()) {
             CompoundTag newPatternTag = getJavaBannerPattern((com.nukkitx.nbt.tag.CompoundTag) patternTag);
@@ -114,7 +129,7 @@ public class ItemUtils {
      * @param pattern Bedorck edition pattern nbt
      * @return The Java edition format pattern nbt
      */
-    public static CompoundTag getJavaBannerPattern(com.nukkitx.nbt.tag.CompoundTag pattern) {
+    public CompoundTag getJavaBannerPattern(com.nukkitx.nbt.tag.CompoundTag pattern) {
         String patternName = (String) pattern.get("Pattern").getValue();
 
         Map<String, Tag> tags = new HashMap<>();

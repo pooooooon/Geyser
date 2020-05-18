@@ -27,9 +27,9 @@ package org.geysermc.connector.network.translators.inventory.updater;
 
 import com.nukkitx.protocol.bedrock.data.ContainerId;
 import com.nukkitx.protocol.bedrock.packet.InventorySlotPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
 
 public class CursorInventoryUpdater extends InventoryUpdater {
@@ -44,7 +44,7 @@ public class CursorInventoryUpdater extends InventoryUpdater {
             InventorySlotPacket slotPacket = new InventorySlotPacket();
             slotPacket.setContainerId(ContainerId.CURSOR);
             slotPacket.setSlot(bedrockSlot);
-            slotPacket.setItem(Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(i)));
+            slotPacket.setItem(GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(i)));
             session.sendUpstreamPacket(slotPacket);
         }
     }
@@ -57,7 +57,7 @@ public class CursorInventoryUpdater extends InventoryUpdater {
         InventorySlotPacket slotPacket = new InventorySlotPacket();
         slotPacket.setContainerId(ContainerId.CURSOR);
         slotPacket.setSlot(translator.javaSlotToBedrock(javaSlot));
-        slotPacket.setItem(Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(javaSlot)));
+        slotPacket.setItem(GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(javaSlot)));
         session.sendUpstreamPacket(slotPacket);
         return true;
     }

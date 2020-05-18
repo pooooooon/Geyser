@@ -1,26 +1,27 @@
 /*
  * Copyright (c) 2019-2020 GeyserMC. http://geysermc.org
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  *
- * @author GeyserMC
- * @link https://github.com/GeyserMC/Geyser
+ *  @author GeyserMC
+ *  @link https://github.com/GeyserMC/Geyser
+ *
  */
 
 package org.geysermc.connector.utils;
@@ -38,7 +39,7 @@ import com.nukkitx.network.util.Preconditions;
 import com.nukkitx.protocol.bedrock.packet.LoginPacket;
 import com.nukkitx.protocol.bedrock.packet.ServerToClientHandshakePacket;
 import com.nukkitx.protocol.bedrock.util.EncryptionUtils;
-
+import lombok.Getter;
 import org.geysermc.common.window.CustomFormBuilder;
 import org.geysermc.common.window.CustomFormWindow;
 import org.geysermc.common.window.FormWindow;
@@ -49,6 +50,7 @@ import org.geysermc.common.window.component.LabelComponent;
 import org.geysermc.common.window.response.CustomFormResponse;
 import org.geysermc.common.window.response.SimpleFormResponse;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.session.auth.AuthData;
 import org.geysermc.connector.network.session.auth.BedrockClientData;
@@ -66,10 +68,17 @@ import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
 import java.util.UUID;
 
+@Getter
 public class LoginEncryptionUtils {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    private static boolean validateChainData(JsonNode data) throws Exception {
+    private GeyserEdition edition;
+
+    public LoginEncryptionUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    private boolean validateChainData(JsonNode data) throws Exception {
         ECPublicKey lastKey = null;
         boolean validChain = false;
         for (JsonNode node : data) {
@@ -91,7 +100,7 @@ public class LoginEncryptionUtils {
         return validChain;
     }
 
-    public static void encryptPlayerConnection(GeyserConnector connector, GeyserSession session, LoginPacket loginPacket) {
+    public void encryptPlayerConnection(GeyserConnector connector, GeyserSession session, LoginPacket loginPacket) {
         JsonNode certData;
         try {
             certData = JSON_MAPPER.readTree(loginPacket.getChainData().toByteArray());
@@ -107,7 +116,7 @@ public class LoginEncryptionUtils {
         encryptConnectionWithCert(connector, session, loginPacket.getSkinData().toString(), certChainData);
     }
 
-    private static void encryptConnectionWithCert(GeyserConnector connector, GeyserSession session, String clientData, JsonNode certChainData) {
+    private void encryptConnectionWithCert(GeyserConnector connector, GeyserSession session, String clientData, JsonNode certChainData) {
         try {
             boolean validChain = validateChainData(certChainData);
 
@@ -138,7 +147,7 @@ public class LoginEncryptionUtils {
             session.setClientData(JSON_MAPPER.convertValue(JSON_MAPPER.readTree(clientJwt.getPayload().toBytes()), BedrockClientData.class));
 
             if (EncryptionUtils.canUseEncryption()) {
-                LoginEncryptionUtils.startEncryptionHandshake(session, identityPublicKey);
+                startEncryptionHandshake(session, identityPublicKey);
             }
         } catch (Exception ex) {
             session.disconnect("disconnectionScreen.internalError.cantConnect");
@@ -146,7 +155,7 @@ public class LoginEncryptionUtils {
         }
     }
 
-    public static JWSObject createHandshakeJwt(KeyPair serverKeyPair, byte[] token, String signedToken) throws JOSEException {
+    public JWSObject createHandshakeJwt(KeyPair serverKeyPair, byte[] token, String signedToken) throws JOSEException {
         URI x5u = URI.create(Base64.getEncoder().encodeToString(serverKeyPair.getPublic().getEncoded()));
 
         JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
@@ -162,7 +171,7 @@ public class LoginEncryptionUtils {
         return jwt;
     }
 
-    private static void startEncryptionHandshake(GeyserSession session, PublicKey key) throws Exception {
+    private void startEncryptionHandshake(GeyserSession session, PublicKey key) throws Exception {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
         generator.initialize(new ECGenParameterSpec("secp384r1"));
         KeyPair serverKeyPair = generator.generateKeyPair();
@@ -179,7 +188,7 @@ public class LoginEncryptionUtils {
     private static int AUTH_FORM_ID = 1336;
     private static int AUTH_DETAILS_FORM_ID = 1337;
 
-    public static void showLoginWindow(GeyserSession session) {
+    public void showLoginWindow(GeyserSession session) {
         SimpleFormWindow window = new SimpleFormWindow("Login", "You need a Java Edition account to play on this server.");
         window.getButtons().add(new FormButton("Login with Minecraft"));
         window.getButtons().add(new FormButton("Disconnect"));
@@ -187,7 +196,7 @@ public class LoginEncryptionUtils {
         session.sendForm(window, AUTH_FORM_ID);
     }
 
-    public static void showLoginDetailsWindow(GeyserSession session) {
+    public void showLoginDetailsWindow(GeyserSession session) {
         CustomFormWindow window = new CustomFormBuilder("Login Details")
                 .addComponent(new LabelComponent("Enter the credentials for your Minecraft: Java Edition account below."))
                 .addComponent(new InputComponent("Email/Username", "account@geysermc.org", ""))
@@ -197,12 +206,12 @@ public class LoginEncryptionUtils {
         session.sendForm(window, AUTH_DETAILS_FORM_ID);
     }
 
-    public static boolean authenticateFromForm(GeyserSession session, GeyserConnector connector, int formId, String formData) {
+    public boolean authenticateFromForm(GeyserSession session, GeyserConnector connector, int formId, String formData) {
         WindowCache windowCache = session.getWindowCache();
         if (!windowCache.getWindows().containsKey(formId))
             return false;
 
-        if(formId == AUTH_FORM_ID || formId == AUTH_DETAILS_FORM_ID) {
+        if (formId == AUTH_FORM_ID || formId == AUTH_DETAILS_FORM_ID) {
             FormWindow window = windowCache.getWindows().remove(formId);
             window.setResponse(formData.trim());
 

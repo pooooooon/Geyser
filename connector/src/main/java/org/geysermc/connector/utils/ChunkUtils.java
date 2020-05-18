@@ -1,26 +1,27 @@
 /*
  * Copyright (c) 2019-2020 GeyserMC. http://geysermc.org
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  *
- * @author GeyserMC
- * @link https://github.com/GeyserMC/Geyser
+ *  @author GeyserMC
+ *  @link https://github.com/GeyserMC/Geyser
+ *
  */
 
 package org.geysermc.connector.utils;
@@ -32,36 +33,44 @@ import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 import com.nukkitx.math.vector.Vector2i;
 import com.nukkitx.math.vector.Vector3i;
-import com.nukkitx.protocol.bedrock.packet.*;
+import com.nukkitx.protocol.bedrock.packet.LevelChunkPacket;
+import com.nukkitx.protocol.bedrock.packet.NetworkChunkPublisherUpdatePacket;
+import com.nukkitx.protocol.bedrock.packet.UpdateBlockPacket;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
-import org.geysermc.connector.entity.Entity;
-import org.geysermc.connector.entity.ItemFrameEntity;
+import org.geysermc.connector.GeyserEdition;
+import org.geysermc.connector.edition.mcpe.common.entity.Entity;
+import org.geysermc.connector.edition.mcpe.common.entity.ItemFrameEntity;
 import org.geysermc.connector.network.session.GeyserSession;
+import org.geysermc.connector.network.translators.block.entity.RequiresBlockState;
 import org.geysermc.connector.network.translators.world.block.BlockStateValues;
-import org.geysermc.connector.network.translators.world.block.entity.*;
-import org.geysermc.connector.network.translators.Translators;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
+import org.geysermc.connector.network.translators.world.block.entity.BedrockOnlyBlockEntity;
+import org.geysermc.connector.network.translators.world.block.entity.BlockEntityTranslator;
 import org.geysermc.connector.network.translators.world.chunk.ChunkPosition;
 import org.geysermc.connector.network.translators.world.chunk.ChunkSection;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.geysermc.connector.network.translators.world.block.BlockTranslator.AIR;
-import static org.geysermc.connector.network.translators.world.block.BlockTranslator.BEDROCK_WATER_ID;
-
+@Getter
 public class ChunkUtils {
 
     /**
      * Temporarily stores positions of BlockState values that are needed for certain block entities actively
      */
-    public static final Map<Position, BlockState> CACHED_BLOCK_ENTITIES = new HashMap<>();
+    private final Map<Position, BlockState> cachedBlockEntities = new HashMap<>();
 
-    public static ChunkData translateToBedrock(Column column) {
+    private GeyserEdition edition;
+
+
+    public ChunkUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    public ChunkData translateToBedrock(Column column) {
         ChunkData chunkData = new ChunkData();
         Chunk[] chunks = column.getChunks();
         chunkData.sections = new ChunkSection[chunks.length];
@@ -85,10 +94,10 @@ public class ChunkUtils {
                 for (int y = 0; y < 16; y++) {
                     for (int z = 0; z < 16; z++) {
                         BlockState blockState = chunk.get(x, y, z);
-                        int id = BlockTranslator.getBedrockBlockId(blockState);
+                        int id = GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState);
 
                         // Check to see if the name is in BlockTranslator.getBlockEntityString, and therefore must be handled differently
-                        if (BlockTranslator.getBlockEntityString(blockState) != null) {
+                        if (GeyserEdition.TRANSLATORS.getBlockTranslator().getBlockEntityString(blockState) != null) {
                             Position pos = new ChunkPosition(column.getX(), column.getZ()).getBlock(x, (chunkY << 4) + y, z);
                             blockEntityPositions.put(pos, blockState);
                         }
@@ -102,8 +111,8 @@ public class ChunkUtils {
                             bedrockOnlyBlockEntities.add(BedrockOnlyBlockEntity.getTag(Vector3i.from(pos.getX(), pos.getY(), pos.getZ()), blockState));
                         }
 
-                        if (BlockTranslator.isWaterlogged(blockState)) {
-                            section.getBlockStorageArray()[1].setFullBlock(ChunkSection.blockPosition(x, y, z), BEDROCK_WATER_ID);
+                        if (GeyserEdition.TRANSLATORS.getBlockTranslator().isWaterlogged(blockState)) {
+                            section.getBlockStorageArray()[1].setFullBlock(ChunkSection.blockPosition(x, y, z), GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockWaterId());
                         }
                     }
                 }
@@ -123,8 +132,8 @@ public class ChunkUtils {
                 tagName = (String) tag.get("id").getValue();
             }
 
-            String id = BlockEntityUtils.getBedrockBlockEntityId(tagName);
-            BlockEntityTranslator blockEntityTranslator = BlockEntityUtils.getBlockEntityTranslator(id);
+            String id = GeyserEdition.BLOCK_ENTITY_UTILS.getBedrockBlockEntityId(tagName);
+            BlockEntityTranslator blockEntityTranslator = GeyserEdition.BLOCK_ENTITY_UTILS.getBlockEntityTranslator(id);
             Position pos = new Position((int) tag.get("x").getValue(), (int) tag.get("y").getValue(), (int) tag.get("z").getValue());
             BlockState blockState = blockEntityPositions.get(pos);
             bedrockBlockEntities[i] = blockEntityTranslator.getBlockEntityTag(tagName, tag, blockState);
@@ -139,7 +148,7 @@ public class ChunkUtils {
         return chunkData;
     }
 
-    public static void updateChunkPosition(GeyserSession session, Vector3i position) {
+    public void updateChunkPosition(GeyserSession session, Vector3i position) {
         Vector2i chunkPos = session.getLastChunkPosition();
         Vector2i newChunkPos = Vector2i.from(position.getX() >> 4, position.getZ() >> 4);
 
@@ -153,14 +162,14 @@ public class ChunkUtils {
         }
     }
 
-    public static void updateBlock(GeyserSession session, BlockState blockState, Position position) {
+    public void updateBlock(GeyserSession session, BlockState blockState, Position position) {
         Vector3i pos = Vector3i.from(position.getX(), position.getY(), position.getZ());
         updateBlock(session, blockState, pos);
     }
 
-    public static void updateBlock(GeyserSession session, BlockState blockState, Vector3i position) {
+    public void updateBlock(GeyserSession session, BlockState blockState, Vector3i position) {
         // Checks for item frames so they aren't tripped up and removed
-        if (ItemFrameEntity.positionContainsItemFrame(session, position) && blockState.equals(AIR)) {
+        if (ItemFrameEntity.positionContainsItemFrame(session, position) && blockState.equals(GeyserEdition.TRANSLATORS.getBlockTranslator().getAir())) {
             ((ItemFrameEntity) session.getEntityCache().getEntityByJavaId(ItemFrameEntity.getItemFrameEntityId(session, position))).updateBlock(session);
             return;
         } else if (ItemFrameEntity.positionContainsItemFrame(session, position)) {
@@ -172,7 +181,7 @@ public class ChunkUtils {
             }
         }
 
-        int blockId = BlockTranslator.getBedrockBlockId(blockState);
+        int blockId = GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState);
 
         UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
         updateBlockPacket.setDataLayer(0);
@@ -184,8 +193,8 @@ public class ChunkUtils {
         UpdateBlockPacket waterPacket = new UpdateBlockPacket();
         waterPacket.setDataLayer(1);
         waterPacket.setBlockPosition(position);
-        if (BlockTranslator.isWaterlogged(blockState)) {
-            waterPacket.setRuntimeId(BEDROCK_WATER_ID);
+        if (GeyserEdition.TRANSLATORS.getBlockTranslator().isWaterlogged(blockState)) {
+            waterPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockWaterId());
         } else {
             waterPacket.setRuntimeId(0);
         }
@@ -194,21 +203,21 @@ public class ChunkUtils {
         // Since Java stores bed colors/skull information as part of the namespaced ID and Bedrock stores it as a tag
         // This is the only place I could find that interacts with the Java block state and block updates
         // Iterates through all block entity translators and determines if the block state needs to be saved
-        for (RequiresBlockState requiresBlockState : Translators.getRequiresBlockStateMap()) {
+        for (RequiresBlockState requiresBlockState : GeyserEdition.TRANSLATORS.getRequiresBlockStateMap()) {
             if (requiresBlockState.isBlock(blockState)) {
                 // Flower pots are block entities only in Bedrock and are not updated anywhere else like note blocks
                 if (requiresBlockState instanceof BedrockOnlyBlockEntity) {
                     ((BedrockOnlyBlockEntity) requiresBlockState).updateBlock(session, blockState, position);
                     break;
                 }
-                CACHED_BLOCK_ENTITIES.put(new Position(position.getX(), position.getY(), position.getZ()), blockState);
+                cachedBlockEntities.put(new Position(position.getX(), position.getY(), position.getZ()), blockState);
                 break; //No block will be a part of two classes
             }
         }
         session.getChunkCache().updateBlock(new Position(position.getX(), position.getY(), position.getZ()), blockState);
     }
 
-    public static void sendEmptyChunks(GeyserSession session, Vector3i position, int radius, boolean forceUpdate) {
+    public void sendEmptyChunks(GeyserSession session, Vector3i position, int radius, boolean forceUpdate) {
         int chunkX = position.getX() >> 4;
         int chunkZ = position.getZ() >> 4;
         for (int x = -radius; x <= radius; x++) {
@@ -217,7 +226,7 @@ public class ChunkUtils {
                 data.setChunkX(chunkX + x);
                 data.setChunkZ(chunkZ + z);
                 data.setSubChunksLength(0);
-                data.setData(Translators.EMPTY_LEVEL_CHUNK_DATA);
+                data.setData(GeyserEdition.TRANSLATORS.getEmptyLevelChunkData());
                 data.setCachingEnabled(false);
                 session.sendUpstreamPacket(data);
 
@@ -233,7 +242,7 @@ public class ChunkUtils {
         }
     }
 
-    public static final class ChunkData {
+    public final class ChunkData {
         public ChunkSection[] sections;
 
         @Getter
@@ -241,4 +250,6 @@ public class ChunkUtils {
         @Getter
         private Object2IntMap<com.nukkitx.nbt.tag.CompoundTag> loadBlockEntitiesLater = new Object2IntOpenHashMap<>();
     }
+
+
 }

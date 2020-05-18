@@ -1,6 +1,6 @@
-[submodule "connector/src/main/resources/education/mappings"]
-	path = connector/src/main/resources/education/mappings
-	url = https://github.com/bundabrg/mappings-education.git
-[submodule "connector/src/main/resources/bedrock/mappings"]
-	path = connector/src/main/resources/bedrock/mappings
+[submodule "connector/src/main/resources/bedrock/1_14_60/mappings"]
+	path = connector/src/main/resources/bedrock/1_14_60/mappings
 	url = https://github.com/GeyserMC/mappings.git
+[submodule "connector/src/main/resources/education/1_12_60/mappings"]
+	path = connector/src/main/resources/education/1_12_60/mappings
+	url = https://github.com/Bundabrg/mappings-education.git

@@ -27,8 +27,8 @@ package org.geysermc.platform.standalone;
 
 import org.geysermc.common.PlatformType;
 import org.geysermc.connector.GeyserConfiguration;
-import org.geysermc.connector.bootstrap.GeyserBootstrap;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.bootstrap.GeyserBootstrap;
 import org.geysermc.connector.command.CommandManager;
 import org.geysermc.connector.utils.FileUtils;
 import org.geysermc.platform.standalone.command.GeyserCommandManager;
@@ -54,7 +54,7 @@ public class GeyserStandaloneBootstrap implements GeyserBootstrap {
         geyserLogger = new GeyserStandaloneLogger();
 
         LoopbackUtil.checkLoopback(geyserLogger);
-        
+
         try {
             File configFile = FileUtils.fileOrCopiedFromResource("config.yml", (x) -> x.replaceAll("generateduuid", UUID.randomUUID().toString()));
             geyserConfig = FileUtils.loadConfig(configFile, GeyserStandaloneConfiguration.class);
@@ -63,7 +63,12 @@ public class GeyserStandaloneBootstrap implements GeyserBootstrap {
             System.exit(0);
         }
 
-        connector = GeyserConnector.start(PlatformType.STANDALONE, this);
+        try {
+            connector = GeyserConnector.start(PlatformType.STANDALONE, this);
+        } catch (GeyserConnector.GeyserConnectorException e) {
+            geyserLogger.severe(e.getMessage(), e.getCause());
+            System.exit(1);
+        }
         geyserCommandManager = new GeyserCommandManager(connector);
         geyserLogger.start();
     }

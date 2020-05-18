@@ -26,13 +26,11 @@
 package org.geysermc.platform.velocity;
 
 import com.google.inject.Inject;
-
 import com.velocitypowered.api.command.CommandManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
-
 import com.velocitypowered.api.proxy.ProxyServer;
 import org.geysermc.common.PlatformType;
 import org.geysermc.connector.GeyserConnector;
@@ -93,7 +91,12 @@ public class GeyserVelocityPlugin implements GeyserBootstrap {
 
         geyserConfig.loadFloodgate(this, proxyServer, configDir);
 
-        this.connector = GeyserConnector.start(PlatformType.VELOCITY, this);
+        try {
+            this.connector = GeyserConnector.start(PlatformType.VELOCITY, this);
+        } catch (GeyserConnector.GeyserConnectorException e) {
+            logger.error(e.getMessage(), e.getCause());
+            return;
+        }
 
         this.geyserCommandManager = new GeyserVelocityCommandManager(connector);
         this.commandManager.register(new GeyserVelocityCommandExecutor(connector), "geyser");

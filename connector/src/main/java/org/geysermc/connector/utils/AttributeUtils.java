@@ -27,8 +27,9 @@ package org.geysermc.connector.utils;
 
 import com.github.steveice10.mc.protocol.data.game.entity.attribute.AttributeModifier;
 import com.github.steveice10.mc.protocol.data.game.entity.attribute.ModifierOperation;
+import org.geysermc.connector.edition.mcpe.common.entity.attribute.AttributeType;
 import org.geysermc.connector.entity.attribute.Attribute;
-import org.geysermc.connector.entity.attribute.AttributeType;
+import org.geysermc.connector.entity.attribute.IAttributeType;
 
 public class AttributeUtils {
 
@@ -63,7 +64,7 @@ public class AttributeUtils {
     }
 
     public static com.nukkitx.protocol.bedrock.data.Attribute getBedrockAttribute(Attribute attribute) {
-        AttributeType type = attribute.getType();
+        IAttributeType type = attribute.getType();
         if (!type.isBedrockAttribute())
             return null;
 

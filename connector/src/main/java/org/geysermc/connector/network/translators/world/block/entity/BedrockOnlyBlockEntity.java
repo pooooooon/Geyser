@@ -29,6 +29,8 @@ package org.geysermc.connector.network.translators.world.block.entity;
 import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
 import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.nbt.tag.CompoundTag;
+import org.geysermc.connector.edition.mcpe.common.network.translators.world.block.entity.FlowerPotBlockEntityTranslator;
+import org.geysermc.connector.edition.mcpe.common.network.translators.world.block.entity.PistonBlockEntityTranslator;
 import org.geysermc.connector.network.session.GeyserSession;
 
 /**

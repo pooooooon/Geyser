@@ -65,11 +65,13 @@ public interface GeyserConfiguration {
 
         String getMotd2();
 
+        String getEdition();
+
+        String getVersion();
+
         IEducationConfiguration getEducation();
 
         interface IEducationConfiguration {
-            boolean isEnabled();
-
             String getToken();
         }
     }
