@@ -32,8 +32,8 @@ import com.nukkitx.protocol.bedrock.BedrockServerSession;
 
 import org.geysermc.connector.GeyserConfiguration;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.utils.MessageUtils;
 
 import java.net.InetSocketAddress;
 
@@ -59,14 +59,14 @@ public class ConnectorServerEventHandler implements BedrockServerEventHandler {
         ServerStatusInfo serverInfo = connector.getPassthroughThread().getInfo();
 
         BedrockPong pong = new BedrockPong();
-        pong.setEdition("MCPE");
+        pong.setEdition(connector.getEdition().getPongEdition());
         pong.setGameType("Default");
         pong.setNintendoLimited(false);
-        pong.setProtocolVersion(GeyserConnector.BEDROCK_PACKET_CODEC.getProtocolVersion());
-        pong.setVersion(GeyserConnector.BEDROCK_PACKET_CODEC.getMinecraftVersion());
+        pong.setProtocolVersion(connector.getEdition().getCodec().getProtocolVersion());
+        pong.setVersion(connector.getEdition().getCodec().getMinecraftVersion());
         pong.setIpv4Port(config.getBedrock().getPort());
         if (connector.getConfig().isPingPassthrough() && serverInfo != null) {
-            String[] motd = MessageUtils.getBedrockMessage(serverInfo.getDescription()).split("\n");
+            String[] motd = GeyserEdition.MESSAGE_UTILS.getBedrockMessage(serverInfo.getDescription()).split("\n");
             String mainMotd = motd[0]; // First line of the motd.
             String subMotd = (motd.length != 1) ? motd[1] : ""; // Second line of the motd if present, otherwise blank.
 
@@ -103,6 +103,6 @@ public class ConnectorServerEventHandler implements BedrockServerEventHandler {
                 connector.removePlayer(player);
             }
         });
-        bedrockServerSession.setPacketCodec(GeyserConnector.BEDROCK_PACKET_CODEC);
+        bedrockServerSession.setPacketCodec(connector.getEdition().getCodec());
     }
 }

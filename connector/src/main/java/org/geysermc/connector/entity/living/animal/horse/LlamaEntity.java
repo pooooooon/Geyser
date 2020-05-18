@@ -30,9 +30,9 @@ import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.EntityData;
 import com.nukkitx.protocol.bedrock.data.ItemData;
 import com.nukkitx.protocol.bedrock.packet.MobArmorEquipmentPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 
 public class LlamaEntity extends ChestedHorseEntity {
 
@@ -56,7 +56,7 @@ public class LlamaEntity extends ChestedHorseEntity {
                 // The damage value is the dye color that Java sends us
                 // Always going to be a carpet so we can hardcode 171 in BlockTranslator
                 // The int then short conversion is required or we get a ClassCastException
-                equipmentPacket.setChestplate(ItemData.of(BlockTranslator.CARPET, (short)((int) entityMetadata.getValue()), 1));
+                equipmentPacket.setChestplate(ItemData.of(GeyserEdition.TRANSLATORS.getBlockTranslator().getCarpet(), (short) ((int) entityMetadata.getValue()), 1));
             } else {
                 equipmentPacket.setChestplate(ItemData.AIR);
             }

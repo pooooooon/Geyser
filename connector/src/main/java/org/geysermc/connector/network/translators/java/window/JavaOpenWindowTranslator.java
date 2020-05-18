@@ -31,13 +31,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.nukkitx.protocol.bedrock.packet.ContainerClosePacket;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
-import org.geysermc.connector.utils.InventoryUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -49,14 +48,14 @@ public class JavaOpenWindowTranslator extends PacketTranslator<ServerOpenWindowP
         if (packet.getWindowId() == 0) {
             return;
         }
-        InventoryTranslator newTranslator = Translators.getInventoryTranslators().get(packet.getType());
+        InventoryTranslator newTranslator = GeyserEdition.TRANSLATORS.getInventoryTranslators().get(packet.getType());
         Inventory openInventory = session.getInventoryCache().getOpenInventory();
         if (newTranslator == null) {
             if (openInventory != null) {
                 ContainerClosePacket closePacket = new ContainerClosePacket();
-                closePacket.setWindowId((byte)openInventory.getId());
+                closePacket.setWindowId((byte) openInventory.getId());
                 session.sendUpstreamPacket(closePacket);
-                Translators.getInventoryTranslators().get(openInventory.getWindowType()).closeInventory(session, openInventory);
+                GeyserEdition.TRANSLATORS.getInventoryTranslators().get(openInventory.getWindowType()).closeInventory(session, openInventory);
             }
             ClientCloseWindowPacket closeWindowPacket = new ClientCloseWindowPacket(packet.getWindowId());
             session.sendDownstreamPacket(closeWindowPacket);
@@ -79,14 +78,14 @@ public class JavaOpenWindowTranslator extends PacketTranslator<ServerOpenWindowP
         Inventory newInventory = new Inventory(name, packet.getWindowId(), packet.getType(), newTranslator.size + 36);
         session.getInventoryCache().cacheInventory(newInventory);
         if (openInventory != null) {
-            InventoryTranslator openTranslator = Translators.getInventoryTranslators().get(openInventory.getWindowType());
+            InventoryTranslator openTranslator = GeyserEdition.TRANSLATORS.getInventoryTranslators().get(openInventory.getWindowType());
             if (!openTranslator.getClass().equals(newTranslator.getClass())) {
-                InventoryUtils.closeInventory(session, openInventory.getId());
-                GeyserConnector.getInstance().getGeneralThreadPool().schedule(() -> InventoryUtils.openInventory(session, newInventory), 500, TimeUnit.MILLISECONDS);
+                GeyserEdition.INVENTORY_UTILS.closeInventory(session, openInventory.getId());
+                GeyserConnector.getInstance().getGeneralThreadPool().schedule(() -> GeyserEdition.INVENTORY_UTILS.openInventory(session, newInventory), 500, TimeUnit.MILLISECONDS);
                 return;
             }
         }
 
-        InventoryUtils.openInventory(session, newInventory);
+        GeyserEdition.INVENTORY_UTILS.openInventory(session, newInventory);
     }
 }

@@ -3,15 +3,24 @@ package org.geysermc.connector.utils;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
 import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.protocol.bedrock.packet.BlockEntityDataPacket;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.world.block.entity.BlockEntityTranslator;
 
+@Getter
 public class BlockEntityUtils {
 
-    private static final BlockEntityTranslator EMPTY_TRANSLATOR = Translators.getBlockEntityTranslators().get("Empty");
+    private final BlockEntityTranslator emptyTranslator;
+    private GeyserEdition edition;
 
-    public static String getBedrockBlockEntityId(String id) {
+    public BlockEntityUtils(GeyserEdition edition) {
+        this.edition = edition;
+
+        emptyTranslator = GeyserEdition.TRANSLATORS.getBlockEntityTranslators().get("Empty");
+    }
+
+    public String getBedrockBlockEntityId(String id) {
         // These are the only exceptions when it comes to block entity ids
         if (id.contains("piston_head"))
             return "PistonArm";
@@ -38,20 +47,20 @@ public class BlockEntityUtils {
         return id.replace(" ", "");
     }
 
-    public static BlockEntityTranslator getBlockEntityTranslator(String name) {
-        BlockEntityTranslator blockEntityTranslator = Translators.getBlockEntityTranslators().get(name);
+    public BlockEntityTranslator getBlockEntityTranslator(String name) {
+        BlockEntityTranslator blockEntityTranslator = GeyserEdition.TRANSLATORS.getBlockEntityTranslators().get(name);
         if (blockEntityTranslator == null) {
-            return EMPTY_TRANSLATOR;
+            return emptyTranslator;
         }
 
         return blockEntityTranslator;
     }
 
-    public static void updateBlockEntity(GeyserSession session, com.nukkitx.nbt.tag.CompoundTag blockEntity, Position position) {
+    public void updateBlockEntity(GeyserSession session, com.nukkitx.nbt.tag.CompoundTag blockEntity, Position position) {
         updateBlockEntity(session, blockEntity, Vector3i.from(position.getX(), position.getY(), position.getZ()));
     }
 
-    public static void updateBlockEntity(GeyserSession session, com.nukkitx.nbt.tag.CompoundTag blockEntity, Vector3i position) {
+    public void updateBlockEntity(GeyserSession session, com.nukkitx.nbt.tag.CompoundTag blockEntity, Vector3i position) {
         BlockEntityDataPacket blockEntityPacket = new BlockEntityDataPacket();
         blockEntityPacket.setBlockPosition(position);
         blockEntityPacket.setData(blockEntity);

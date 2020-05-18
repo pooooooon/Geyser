@@ -105,7 +105,12 @@ public class GeyserSpongePlugin implements GeyserBootstrap {
         }
 
         this.geyserLogger = new GeyserSpongeLogger(logger, geyserConfig.isDebugMode());
-        this.connector = GeyserConnector.start(PlatformType.SPONGE, this);
+        try {
+            this.connector = GeyserConnector.start(PlatformType.SPONGE, this);
+        } catch (GeyserConnector.GeyserConnectorException e) {
+            logger.error(e.getMessage(), e.getCause());
+            return;
+        }
         this.geyserCommandManager = new GeyserSpongeCommandManager(Sponge.getCommandManager(), connector);
 
         Sponge.getCommandManager().register(this, new GeyserSpongeCommandExecutor(connector), "geyser");

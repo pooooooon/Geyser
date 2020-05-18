@@ -95,6 +95,16 @@ public class GeyserVelocityConfiguration implements GeyserConfiguration {
 
         private String motd1;
         private String motd2;
+
+        private String edition;
+        private String version;
+
+        private EducationConfiguration education;
+
+        @Getter
+        public static class EducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
+            private String token;
+        }
     }
 
     @Getter

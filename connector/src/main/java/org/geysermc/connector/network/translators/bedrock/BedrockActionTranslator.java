@@ -43,7 +43,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlaye
 import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.protocol.bedrock.packet.PlayStatusPacket;
 import com.nukkitx.protocol.bedrock.packet.PlayerActionPacket;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
+import org.geysermc.connector.GeyserEdition;
 
 @Translator(packet = PlayerActionPacket.class)
 public class BedrockActionTranslator extends PacketTranslator<PlayerActionPacket> {
@@ -114,7 +114,7 @@ public class BedrockActionTranslator extends PacketTranslator<PlayerActionPacket
             case CONTINUE_BREAK:
                 LevelEventPacket continueBreakPacket = new LevelEventPacket();
                 continueBreakPacket.setType(LevelEventType.PUNCH_BLOCK);
-                continueBreakPacket.setData(BlockTranslator.getBedrockBlockId(session.getBreakingBlock() == null ? BlockTranslator.AIR : session.getBreakingBlock()));
+                continueBreakPacket.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(session.getBreakingBlock() == null ? GeyserEdition.TRANSLATORS.getBlockTranslator().getAir() : session.getBreakingBlock()));
                 continueBreakPacket.setPosition(packet.getBlockPosition().toFloat());
                 session.sendUpstreamPacket(continueBreakPacket);
                 break;

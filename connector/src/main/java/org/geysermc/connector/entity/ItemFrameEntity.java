@@ -36,12 +36,10 @@ import com.nukkitx.protocol.bedrock.data.ItemData;
 import com.nukkitx.protocol.bedrock.packet.BlockEntityDataPacket;
 import com.nukkitx.protocol.bedrock.packet.StartGamePacket;
 import com.nukkitx.protocol.bedrock.packet.UpdateBlockPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.item.ItemEntry;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.Toolbox;
 
 import java.util.concurrent.TimeUnit;
 
@@ -73,14 +71,14 @@ public class ItemFrameEntity extends Entity {
         CompoundTagBuilder builder = CompoundTag.builder();
         builder.tag(CompoundTag.builder()
                 .stringTag("name", "minecraft:frame")
-                .intTag("version", BlockTranslator.getBlockStateVersion())
+                .intTag("version", GeyserEdition.TRANSLATORS.getBlockTranslator().getBlockStateVersion())
                 .tag(CompoundTag.builder()
                         .intTag("facing_direction", direction.ordinal())
                         .byteTag("item_frame_map_bit", (byte) 0)
                         .build("states"))
                 .build("block"));
         builder.shortTag("id", (short) 199);
-        bedrockRuntimeId = BlockTranslator.getItemFrame(builder.buildRootTag());
+        bedrockRuntimeId = GeyserEdition.TRANSLATORS.getBlockTranslator().getItemFrame(builder.buildRootTag());
         bedrockPosition = Vector3i.from(position.getFloorX(), position.getFloorY(), position.getFloorZ());
     }
 
@@ -95,12 +93,12 @@ public class ItemFrameEntity extends Entity {
     @Override
     public void updateBedrockMetadata(EntityMetadata entityMetadata, GeyserSession session) {
         if (entityMetadata.getId() == 7 && entityMetadata.getValue() != null) {
-            ItemData itemData = Translators.getItemTranslator().translateToBedrock(session, (ItemStack) entityMetadata.getValue());
-            ItemEntry itemEntry = Translators.getItemTranslator().getItem((ItemStack) entityMetadata.getValue());
+            ItemData itemData = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, (ItemStack) entityMetadata.getValue());
+            ItemEntry itemEntry = GeyserEdition.TRANSLATORS.getItemTranslator().getItem((ItemStack) entityMetadata.getValue());
             CompoundTagBuilder builder = CompoundTag.builder();
 
             String blockName = "";
-            for (StartGamePacket.ItemEntry startGamePacketItemEntry: Toolbox.ITEMS) {
+            for (StartGamePacket.ItemEntry startGamePacketItemEntry : GeyserEdition.TOOLBOX.getItems()) {
                 if (startGamePacketItemEntry.getId() == (short) itemEntry.getBedrockId()) {
                     blockName = startGamePacketItemEntry.getIdentifier();
                     break;

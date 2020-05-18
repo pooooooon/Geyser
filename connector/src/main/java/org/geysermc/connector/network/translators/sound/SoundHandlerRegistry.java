@@ -26,7 +26,8 @@
 
 package org.geysermc.connector.network.translators.sound;
 
-import org.reflections.Reflections;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,36 +35,18 @@ import java.util.Map;
 /**
  * Registry that holds {@link SoundInteractionHandler}s.
  */
+@Getter
 public class SoundHandlerRegistry {
 
-    static final Map<SoundHandler, SoundInteractionHandler<?>> INTERACTION_HANDLERS = new HashMap<>();
+    private final Map<SoundHandler, SoundInteractionHandler<?>> interactionHandlers = new HashMap<>();
 
-    static {
-        Reflections ref = new Reflections("org.geysermc.connector.network.translators.sound");
-        for (Class<?> clazz : ref.getTypesAnnotatedWith(SoundHandler.class)) {
-            try {
-                SoundInteractionHandler<?> interactionHandler = (SoundInteractionHandler<?>) clazz.newInstance();
-                SoundHandler annotation = clazz.getAnnotation(SoundHandler.class);
-                INTERACTION_HANDLERS.put(annotation, interactionHandler);
-            } catch (InstantiationException | IllegalAccessException ex) {
-                ex.printStackTrace();
-            }
-        }
+    private final GeyserEdition edition;
+
+    public SoundHandlerRegistry(GeyserEdition edition) {
+        this.edition = edition;
     }
 
-    private SoundHandlerRegistry() {
-    }
-
-    public static void init() {
-        // no-op
-    }
-
-    /**
-     * Returns a map of the interaction handlers
-     *
-     * @return a map of the interaction handlers
-     */
-    public static Map<SoundHandler, SoundInteractionHandler<?>> getInteractionHandlers() {
-        return INTERACTION_HANDLERS;
+    public void registerSoundInteractionHandler(SoundInteractionHandler<?> handler) {
+        interactionHandlers.put(handler.getClass().getAnnotation(SoundHandler.class), handler);
     }
 }

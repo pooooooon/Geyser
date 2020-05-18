@@ -27,15 +27,24 @@ package org.geysermc.connector.utils;
 
 import com.github.steveice10.opennbt.tag.builtin.*;
 import com.nukkitx.nbt.CompoundTagBuilder;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class ItemUtils {
 
-    public static int getEnchantmentLevel(CompoundTag itemNBTData, String enchantmentId) {
+    private GeyserEdition edition;
+
+    public ItemUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    public int getEnchantmentLevel(CompoundTag itemNBTData, String enchantmentId) {
         ListTag enchantments = (itemNBTData == null ? null : itemNBTData.get("Enchantments"));
         if (enchantments != null) {
             int enchantmentLevel = 0;
@@ -57,7 +66,7 @@ public class ItemUtils {
      * @param patterns The patterns to convert
      * @return The new converted patterns
      */
-    public static com.nukkitx.nbt.tag.ListTag convertBannerPattern(ListTag patterns) {
+    public com.nukkitx.nbt.tag.ListTag convertBannerPattern(ListTag patterns) {
         List<com.nukkitx.nbt.tag.CompoundTag> tagsList = new ArrayList<>();
         for (com.github.steveice10.opennbt.tag.builtin.Tag patternTag : patterns.getValue()) {
             com.nukkitx.nbt.tag.CompoundTag newPatternTag = getBedrockBannerPattern((CompoundTag) patternTag);
@@ -75,7 +84,7 @@ public class ItemUtils {
      * @param pattern Java edition pattern nbt
      * @return The Bedrock edition format pattern nbt
      */
-    public static com.nukkitx.nbt.tag.CompoundTag getBedrockBannerPattern(CompoundTag pattern) {
+    public com.nukkitx.nbt.tag.CompoundTag getBedrockBannerPattern(CompoundTag pattern) {
         String patternName = (String) pattern.get("Pattern").getValue();
 
         // Return null if its the globe pattern as it doesn't exist on bedrock
@@ -96,7 +105,7 @@ public class ItemUtils {
      * @param patterns The patterns to convert
      * @return The new converted patterns
      */
-    public static ListTag convertBannerPattern(com.nukkitx.nbt.tag.ListTag patterns) {
+    public ListTag convertBannerPattern(com.nukkitx.nbt.tag.ListTag patterns) {
         List<Tag> tagsList = new ArrayList<>();
         for (Object patternTag : patterns.getValue()) {
             CompoundTag newPatternTag = getJavaBannerPattern((com.nukkitx.nbt.tag.CompoundTag) patternTag);
@@ -114,7 +123,7 @@ public class ItemUtils {
      * @param pattern Bedorck edition pattern nbt
      * @return The Java edition format pattern nbt
      */
-    public static CompoundTag getJavaBannerPattern(com.nukkitx.nbt.tag.CompoundTag pattern) {
+    public CompoundTag getJavaBannerPattern(com.nukkitx.nbt.tag.CompoundTag pattern) {
         String patternName = (String) pattern.get("Pattern").getValue();
 
         Map<String, Tag> tags = new HashMap<>();

@@ -30,11 +30,10 @@ import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 import com.github.steveice10.opennbt.tag.builtin.ListTag;
 import com.nukkitx.nbt.CompoundTagBuilder;
 import com.nukkitx.protocol.bedrock.data.ItemData;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.translators.ItemRemapper;
 import org.geysermc.connector.network.translators.ItemStackTranslator;
 import org.geysermc.connector.network.translators.item.ItemEntry;
-import org.geysermc.connector.utils.ItemUtils;
-import org.geysermc.connector.utils.Toolbox;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,10 +41,10 @@ import java.util.stream.Collectors;
 @ItemRemapper
 public class BannerTranslator extends ItemStackTranslator {
 
-    private List<ItemEntry> appliedItems;
+    private final List<ItemEntry> appliedItems;
 
     public BannerTranslator() {
-        appliedItems = Toolbox.ITEM_ENTRIES.values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("banner")).collect(Collectors.toList());
+        appliedItems = GeyserEdition.TOOLBOX.getItemEntries().values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("banner")).collect(Collectors.toList());
     }
 
     @Override
@@ -59,7 +58,7 @@ public class BannerTranslator extends ItemStackTranslator {
             ListTag patterns = blockEntityTag.get("Patterns");
 
             CompoundTagBuilder builder = itemData.getTag().toBuilder();
-            builder.tag(ItemUtils.convertBannerPattern(patterns));
+            builder.tag(GeyserEdition.ITEM_UTILS.convertBannerPattern(patterns));
 
             itemData = ItemData.of(itemData.getId(), itemData.getDamage(), itemData.getCount(), builder.buildRootTag());
         }
@@ -78,7 +77,7 @@ public class BannerTranslator extends ItemStackTranslator {
             com.nukkitx.nbt.tag.ListTag patterns = (com.nukkitx.nbt.tag.ListTag) nbtTag.get("Patterns");
 
             CompoundTag blockEntityTag = new CompoundTag("BlockEntityTag");
-            blockEntityTag.put(ItemUtils.convertBannerPattern(patterns));
+            blockEntityTag.put(GeyserEdition.ITEM_UTILS.convertBannerPattern(patterns));
 
             itemStack.getNbt().put(blockEntityTag);
         }

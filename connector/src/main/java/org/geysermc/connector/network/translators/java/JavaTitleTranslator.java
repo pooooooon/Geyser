@@ -25,10 +25,10 @@
 
 package org.geysermc.connector.network.translators.java;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.MessageUtils;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket;
 import com.nukkitx.protocol.bedrock.packet.SetTitlePacket;
@@ -43,11 +43,11 @@ public class JavaTitleTranslator extends PacketTranslator<ServerTitlePacket> {
         switch (packet.getAction()) {
             case TITLE:
                 titlePacket.setType(SetTitlePacket.Type.SET_TITLE);
-                titlePacket.setText(MessageUtils.getBedrockMessage(packet.getTitle()));
+                titlePacket.setText(GeyserEdition.MESSAGE_UTILS.getBedrockMessage(packet.getTitle()));
                 break;
             case SUBTITLE:
                 titlePacket.setType(SetTitlePacket.Type.SET_SUBTITLE);
-                titlePacket.setText(MessageUtils.getBedrockMessage(packet.getTitle()));
+                titlePacket.setText(GeyserEdition.MESSAGE_UTILS.getBedrockMessage(packet.getTitle()));
                 break;
             case CLEAR:
             case RESET:
@@ -56,7 +56,7 @@ public class JavaTitleTranslator extends PacketTranslator<ServerTitlePacket> {
                 break;
             case ACTION_BAR:
                 titlePacket.setType(SetTitlePacket.Type.SET_ACTIONBAR_MESSAGE);
-                titlePacket.setText(MessageUtils.getBedrockMessage(packet.getTitle()));
+                titlePacket.setText(GeyserEdition.MESSAGE_UTILS.getBedrockMessage(packet.getTitle()));
                 break;
             case TIMES:
                 titlePacket.setFadeInTime(packet.getFadeIn());

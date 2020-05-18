@@ -38,47 +38,51 @@ import com.nukkitx.protocol.bedrock.packet.StartGamePacket;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.translators.item.ItemEntry;
 import org.geysermc.connector.network.translators.item.ToolItemEntry;
-import org.geysermc.connector.network.translators.sound.SoundHandlerRegistry;
 
 import java.io.*;
 import java.util.*;
 
+@Getter
 public class Toolbox {
 
     public static final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-    public static final CompoundTag BIOMES;
-    public static final ItemData[] CREATIVE_ITEMS;
 
-    public static final List<StartGamePacket.ItemEntry> ITEMS = new ArrayList<>();
+    private final CompoundTag biomes;
+    private final ItemData[] creativeItems;
 
-    public static final Int2ObjectMap<ItemEntry> ITEM_ENTRIES = new Int2ObjectOpenHashMap<>();
+    private final List<StartGamePacket.ItemEntry> items = new ArrayList<>();
 
-    public static CompoundTag ENTITY_IDENTIFIERS;
+    private final Int2ObjectMap<ItemEntry> itemEntries = new Int2ObjectOpenHashMap<>();
+    private final GeyserEdition edition;
+    private CompoundTag entityIdentifiers;
+    private int barrierIndex = 0;
 
-    public static int BARRIER_INDEX = 0;
+    public Toolbox(GeyserEdition edition) {
+        this.edition = edition;
 
-    static {
         /* Load biomes */
-        InputStream biomestream = GeyserConnector.class.getClassLoader().getResourceAsStream("bedrock/biome_definitions.dat");
+        InputStream biomestream = getResource("data/biome_definitions.dat");
         if (biomestream == null) {
-            throw new AssertionError("Unable to find bedrock/biome_definitions.dat");
+            throw new AssertionError("Unable to load biome definitions");
         }
 
         CompoundTag biomesTag;
 
-        try (NBTInputStream biomenbtInputStream = NbtUtils.createNetworkReader(biomestream)){
+        try (NBTInputStream biomenbtInputStream = NbtUtils.createNetworkReader(biomestream)) {
             biomesTag = (CompoundTag) biomenbtInputStream.readTag();
-            BIOMES = biomesTag;
+            biomes = biomesTag;
         } catch (Exception ex) {
             GeyserConnector.getInstance().getLogger().warning("Failed to get biomes from biome definitions, is there something wrong with the file?");
             throw new AssertionError(ex);
         }
 
         /* Load item palette */
-        InputStream stream = getResource("bedrock/items.json");
+        InputStream stream = getResource("data/items.json");
 
         TypeReference<List<JsonNode>> itemEntriesType = new TypeReference<List<JsonNode>>() {
         };
@@ -91,7 +95,7 @@ public class Toolbox {
         }
 
         for (JsonNode entry : itemEntries) {
-            ITEMS.add(new StartGamePacket.ItemEntry(entry.get("name").textValue(), (short) entry.get("id").intValue()));
+            items.add(new StartGamePacket.ItemEntry(entry.get("name").textValue(), (short) entry.get("id").intValue()));
         }
 
         stream = getResource("mappings/items.json");
@@ -109,7 +113,7 @@ public class Toolbox {
             Map.Entry<String, JsonNode> entry = iterator.next();
             if (entry.getValue().has("tool_type")) {
                 if (entry.getValue().has("tool_tier")) {
-                    ITEM_ENTRIES.put(itemIndex, new ToolItemEntry(
+                    this.itemEntries.put(itemIndex, new ToolItemEntry(
                             entry.getKey(), itemIndex,
                             entry.getValue().get("bedrock_id").intValue(),
                             entry.getValue().get("bedrock_data").intValue(),
@@ -117,7 +121,7 @@ public class Toolbox {
                             entry.getValue().get("tool_tier").textValue(),
                             entry.getValue().get("is_block").booleanValue()));
                 } else {
-                    ITEM_ENTRIES.put(itemIndex, new ToolItemEntry(
+                    this.itemEntries.put(itemIndex, new ToolItemEntry(
                             entry.getKey(), itemIndex,
                             entry.getValue().get("bedrock_id").intValue(),
                             entry.getValue().get("bedrock_data").intValue(),
@@ -126,31 +130,24 @@ public class Toolbox {
                             entry.getValue().get("is_block").booleanValue()));
                 }
             } else {
-                ITEM_ENTRIES.put(itemIndex, new ItemEntry(
+                this.itemEntries.put(itemIndex, new ItemEntry(
                         entry.getKey(), itemIndex,
                         entry.getValue().get("bedrock_id").intValue(),
                         entry.getValue().get("bedrock_data").intValue(),
                         entry.getValue().get("is_block").booleanValue()));
             }
             if (entry.getKey().equals("minecraft:barrier")) {
-                BARRIER_INDEX = itemIndex;
+                barrierIndex = itemIndex;
             }
 
             itemIndex++;
         }
 
-        // Load particle/effect mappings
-        EffectUtils.init();
-        // Load sound mappings
-        SoundUtils.init();
         // Load the locale data
         LocaleUtils.init();
 
-        // Load sound handlers
-        SoundHandlerRegistry.init();
-
         /* Load creative items */
-        stream = getResource("bedrock/creative_items.json");
+        stream = getResource("data/creative_items.json");
 
         JsonNode creativeItemEntries;
         try {
@@ -178,14 +175,14 @@ public class Toolbox {
                 creativeItems.add(ItemData.of(itemNode.get("id").asInt(), damage, 1));
             }
         }
-        CREATIVE_ITEMS = creativeItems.toArray(new ItemData[0]);
+        this.creativeItems = creativeItems.toArray(new ItemData[0]);
 
 
         /* Load entity identifiers */
-        stream = Toolbox.getResource("bedrock/entity_identifiers.dat");
+        stream = getResource("data/entity_identifiers.dat");
 
         try (NBTInputStream nbtInputStream = NbtUtils.createNetworkReader(stream)) {
-            ENTITY_IDENTIFIERS = (CompoundTag) nbtInputStream.readTag();
+            entityIdentifiers = (CompoundTag) nbtInputStream.readTag();
         } catch (Exception e) {
             throw new AssertionError("Unable to get entities from entity identifiers", e);
         }
@@ -197,15 +194,12 @@ public class Toolbox {
      * @param resource Resource to get
      * @return InputStream of the given resource
      */
-    public static InputStream getResource(String resource) {
-        InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(resource);
+    public InputStream getResource(String resource) {
+        String resourceName = edition.getEdition().replace(".", "_") + "/" + edition.getVersion().replace(".", "_") + "/" + resource;
+        InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(resourceName);
         if (stream == null) {
-            throw new AssertionError("Unable to find resource: " + resource);
+            throw new AssertionError("Unable to find resource: " + resourceName);
         }
         return stream;
-    }
-
-    public static void init() {
-        // no-op
     }
 }

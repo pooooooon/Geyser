@@ -31,8 +31,7 @@ import com.github.steveice10.opennbt.tag.builtin.IntTag;
 import com.github.steveice10.opennbt.tag.builtin.StringTag;
 import com.nukkitx.nbt.CompoundTagBuilder;
 import com.nukkitx.nbt.tag.Tag;
-
-import org.geysermc.connector.utils.BlockEntityUtils;
+import org.geysermc.connector.GeyserEdition;
 
 import java.util.List;
 
@@ -49,7 +48,7 @@ public abstract class BlockEntityTranslator {
         int y = Integer.parseInt(String.valueOf(tag.getValue().get("y").getValue()));
         int z = Integer.parseInt(String.valueOf(tag.getValue().get("z").getValue()));
 
-        CompoundTagBuilder tagBuilder = getConstantBedrockTag(BlockEntityUtils.getBedrockBlockEntityId(id), x, y, z).toBuilder();
+        CompoundTagBuilder tagBuilder = getConstantBedrockTag(GeyserEdition.BLOCK_ENTITY_UTILS.getBedrockBlockEntityId(id), x, y, z).toBuilder();
         translateTag(tag, blockState).forEach(tagBuilder::tag);
         return tagBuilder.buildRootTag();
     }

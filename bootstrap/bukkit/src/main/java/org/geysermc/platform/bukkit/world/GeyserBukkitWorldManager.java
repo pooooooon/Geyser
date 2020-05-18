@@ -29,13 +29,11 @@ package org.geysermc.platform.bukkit.world;
 import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.world.WorldManager;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.platform.bukkit.GeyserBukkitPlugin;
 import us.myles.ViaVersion.protocols.protocol1_13_1to1_13.Protocol1_13_1To1_13;
 import us.myles.ViaVersion.protocols.protocol1_15to1_14_4.data.MappingData;
 
@@ -50,12 +48,12 @@ public class GeyserBukkitWorldManager extends WorldManager {
     @Override
     public BlockState getBlockAt(GeyserSession session, int x, int y, int z) {
         if (session.getPlayerEntity() == null) {
-            return BlockTranslator.AIR;
+            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
         }
         if (isLegacy) {
             return getLegacyBlock(session, x, y, z, isViaVersion);
         }
-        return BlockTranslator.getJavaIdBlockMap().get(Bukkit.getPlayer(session.getPlayerEntity().getUsername()).getWorld().getBlockAt(x, y, z).getBlockData().getAsString());
+        return GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().get(Bukkit.getPlayer(session.getPlayerEntity().getUsername()).getWorld().getBlockAt(x, y, z).getBlockData().getAsString());
     }
 
     @SuppressWarnings("deprecation")
@@ -70,7 +68,7 @@ public class GeyserBukkitWorldManager extends WorldManager {
             int fourteenBlockId = us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData.blockStateMappings.getNewId(thirteenPointOneBlockId);
             return new BlockState(MappingData.blockStateMappings.getNewId(fourteenBlockId));
         } else {
-            return BlockTranslator.AIR;
+            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
         }
     }
 }

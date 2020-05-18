@@ -25,11 +25,11 @@
 
 package org.geysermc.connector.network.translators.java.entity.player;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.SkinUtils;
 
 import com.github.steveice10.mc.protocol.data.game.PlayerListEntry;
 import com.github.steveice10.mc.protocol.data.game.PlayerListEntryAction;
@@ -67,7 +67,7 @@ public class JavaPlayerListEntryTranslator extends PacketTranslator<ServerPlayer
                 playerEntity.setValid(true);
                 session.getEntityCache().addPlayerEntity(playerEntity);
 
-                translate.getEntries().add(SkinUtils.buildCachedEntry(entry.getProfile(), playerEntity.getGeyserId()));
+                translate.getEntries().add(GeyserEdition.SKIN_UTILS.buildCachedEntry(entry.getProfile(), playerEntity.getGeyserId()));
             } else {
                 PlayerEntity entity = session.getEntityCache().getPlayerEntity(entry.getProfile().getId());
                 if (entity != null && entity.isValid()) {

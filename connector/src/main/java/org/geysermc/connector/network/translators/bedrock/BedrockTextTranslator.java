@@ -25,13 +25,13 @@
 
 package org.geysermc.connector.network.translators.bedrock;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
 
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket;
 import com.nukkitx.protocol.bedrock.packet.TextPacket;
-import org.geysermc.connector.utils.MessageUtils;
 
 @Translator(packet = TextPacket.class)
 public class BedrockTextTranslator extends PacketTranslator<TextPacket> {
@@ -40,7 +40,7 @@ public class BedrockTextTranslator extends PacketTranslator<TextPacket> {
     public void translate(TextPacket packet, GeyserSession session) {
         String message = packet.getMessage().replaceAll("^\\.", "/").trim();
 
-        if (MessageUtils.isTooLong(message, session)) {
+        if (GeyserEdition.MESSAGE_UTILS.isTooLong(message, session)) {
             return;
         }
 

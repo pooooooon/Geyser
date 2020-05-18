@@ -31,12 +31,10 @@ import com.nukkitx.protocol.bedrock.data.ItemData;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import com.nukkitx.protocol.bedrock.packet.SpawnParticleEffectPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.network.translators.Translators;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.EffectUtils;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.world.ServerSpawnParticlePacket;
 import com.nukkitx.math.vector.Vector3f;
@@ -51,20 +49,20 @@ public class JavaSpawnParticleTranslator extends PacketTranslator<ServerSpawnPar
             case BLOCK:
                 particle.setType(LevelEventType.DESTROY);
                 particle.setPosition(Vector3f.from(packet.getX(), packet.getY(), packet.getZ()));
-                particle.setData(BlockTranslator.getBedrockBlockId(((BlockParticleData) packet.getParticle().getData()).getBlockState()));
+                particle.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(((BlockParticleData) packet.getParticle().getData()).getBlockState()));
                 session.sendUpstreamPacket(particle);
                 break;
             case FALLING_DUST:
                 //In fact, FallingDustParticle should have data like DustParticle,
                 //but in MCProtocol, its data is BlockState(1).
                 particle.setType(LevelEventType.PARTICLE_FALLING_DUST);
-                particle.setData(BlockTranslator.getBedrockBlockId(((FallingDustParticleData)packet.getParticle().getData()).getBlockState()));
+                particle.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(((FallingDustParticleData) packet.getParticle().getData()).getBlockState()));
                 particle.setPosition(Vector3f.from(packet.getX(), packet.getY(), packet.getZ()));
                 session.sendUpstreamPacket(particle);
                 break;
             case ITEM:
                 ItemStack javaItem = ((ItemParticleData)packet.getParticle().getData()).getItemStack();
-                ItemData bedrockItem = Translators.getItemTranslator().translateToBedrock(session, javaItem);
+                ItemData bedrockItem = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, javaItem);
                 int id = bedrockItem.getId();
                 short damage = bedrockItem.getDamage();
                 particle.setType(LevelEventType.PARTICLE_ITEM_BREAK);
@@ -83,13 +81,13 @@ public class JavaSpawnParticleTranslator extends PacketTranslator<ServerSpawnPar
                 session.sendUpstreamPacket(particle);
                 break;
             default:
-                LevelEventType typeParticle = EffectUtils.getParticleLevelEventType(packet.getParticle().getType());
+                LevelEventType typeParticle = GeyserEdition.EFFECT_UTILS.getParticleLevelEventType(packet.getParticle().getType());
                 if (typeParticle != null) {
                     particle.setType(typeParticle);
                     particle.setPosition(Vector3f.from(packet.getX(), packet.getY(), packet.getZ()));
                     session.sendUpstreamPacket(particle);
                 } else {
-                    String stringParticle = EffectUtils.getParticleString(packet.getParticle().getType());
+                    String stringParticle = GeyserEdition.EFFECT_UTILS.getParticleString(packet.getParticle().getType());
                     if (stringParticle != null) {
                         SpawnParticleEffectPacket stringPacket = new SpawnParticleEffectPacket();
                         stringPacket.setIdentifier(stringParticle);

@@ -44,6 +44,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import lombok.Getter;
 import lombok.Setter;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.attribute.Attribute;
 import org.geysermc.connector.entity.attribute.AttributeType;
 import org.geysermc.connector.entity.living.ArmorStandEntity;
@@ -51,7 +52,6 @@ import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.item.ItemTranslator;
 import org.geysermc.connector.utils.AttributeUtils;
-import org.geysermc.connector.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -252,7 +252,7 @@ public class Entity {
             case 2: // custom name
                 TextMessage name = (TextMessage) entityMetadata.getValue();
                 if (name != null)
-                    metadata.put(EntityData.NAMETAG, MessageUtils.getBedrockMessage(name));
+                    metadata.put(EntityData.NAMETAG, GeyserEdition.MESSAGE_UTILS.getBedrockMessage(name));
                 break;
             case 3: // is custom name visible
                 if (!this.is(PlayerEntity.class))

@@ -36,9 +36,9 @@ import com.nukkitx.protocol.bedrock.data.ContainerId;
 import com.nukkitx.protocol.bedrock.data.InventoryActionData;
 import com.nukkitx.protocol.bedrock.data.InventorySource;
 import com.nukkitx.protocol.bedrock.data.ItemData;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
 import org.geysermc.connector.network.translators.inventory.SlotType;
 import org.geysermc.connector.utils.InventoryUtils;
@@ -61,13 +61,13 @@ public class InventoryActionDataTranslator {
                 worldAction = action;
             } else if (action.getSource().getContainerId() == ContainerId.CURSOR && action.getSlot() == 0) {
                 cursorAction = action;
-                ItemData translatedCursor = Translators.getItemTranslator().translateToBedrock(session, session.getInventory().getCursor());
+                ItemData translatedCursor = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, session.getInventory().getCursor());
                 if (!translatedCursor.equals(action.getFromItem())) {
                     refresh = true;
                 }
             } else {
                 containerAction = action;
-                ItemData translatedItem = Translators.getItemTranslator().translateToBedrock(session, inventory.getItem(translator.bedrockSlotToJava(action)));
+                ItemData translatedItem = GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(translator.bedrockSlotToJava(action)));
                 if (!translatedItem.equals(action.getFromItem())) {
                     refresh = true;
                 }
@@ -144,7 +144,7 @@ public class InventoryActionDataTranslator {
             int javaSlot = translator.bedrockSlotToJava(containerAction);
             if (cursorAction.getFromItem().equals(containerAction.getToItem())
                     && containerAction.getFromItem().equals(cursorAction.getToItem())
-                    && !InventoryUtils.canStack(cursorAction.getFromItem(), containerAction.getFromItem())) { //simple swap
+                    && !GeyserEdition.INVENTORY_UTILS.canStack(cursorAction.getFromItem(), containerAction.getFromItem())) { //simple swap
                 plan.add(Click.LEFT, javaSlot);
             } else if (cursorAction.getFromItem().getCount() > cursorAction.getToItem().getCount()) { //release
                 if (cursorAction.getToItem().getCount() == 0) {
@@ -222,7 +222,7 @@ public class InventoryActionDataTranslator {
 
             if (translator.getSlotType(fromSlot) == SlotType.OUTPUT) {
                 if ((craftSlot != 0 && craftSlot != -2) && (inventory.getItem(toSlot) == null
-                        || InventoryUtils.canStack(session.getInventory().getCursor(), inventory.getItem(toSlot)))) {
+                        || GeyserEdition.INVENTORY_UTILS.canStack(session.getInventory().getCursor(), inventory.getItem(toSlot)))) {
                     if (fromAction.getToItem().getCount() == 0) {
                         refresh = true;
                         plan.add(Click.LEFT, toSlot);
@@ -253,14 +253,14 @@ public class InventoryActionDataTranslator {
                     return;
                 }
             }
-            if ((fromAction.getFromItem().equals(toAction.getToItem()) && !InventoryUtils.canStack(fromAction.getFromItem(), toAction.getFromItem()))
+            if ((fromAction.getFromItem().equals(toAction.getToItem()) && !GeyserEdition.INVENTORY_UTILS.canStack(fromAction.getFromItem(), toAction.getFromItem()))
                     || fromAction.getToItem().getId() == 0) { //slot swap
                 plan.add(Click.LEFT, fromSlot);
                 plan.add(Click.LEFT, toSlot);
                 if (fromAction.getToItem().getId() != 0) {
                     plan.add(Click.LEFT, fromSlot);
                 }
-            } else if (InventoryUtils.canStack(fromAction.getFromItem(), toAction.getToItem())) { //partial item move
+            } else if (GeyserEdition.INVENTORY_UTILS.canStack(fromAction.getFromItem(), toAction.getToItem())) { //partial item move
                 if (translator.getSlotType(fromSlot) == SlotType.FURNACE_OUTPUT) {
                     ClientWindowActionPacket shiftClickPacket = new ClientWindowActionPacket(inventory.getId(),
                             inventory.getTransactionId().getAndIncrement(),
@@ -295,7 +295,7 @@ public class InventoryActionDataTranslator {
         }
 
         translator.updateInventory(session, inventory);
-        InventoryUtils.updateCursor(session);
+        GeyserEdition.INVENTORY_UTILS.updateCursor(session);
     }
 
     private static int findTempSlot(Inventory inventory, ItemStack item, List<Integer> slotBlacklist) {
@@ -315,7 +315,7 @@ public class InventoryActionDataTranslator {
             boolean acceptable = true;
             if (testItem != null) {
                 for (ItemStack blacklistItem : itemBlacklist) {
-                    if (InventoryUtils.canStack(testItem, blacklistItem)) {
+                    if (GeyserEdition.INVENTORY_UTILS.canStack(testItem, blacklistItem)) {
                         acceptable = false;
                         break;
                     }

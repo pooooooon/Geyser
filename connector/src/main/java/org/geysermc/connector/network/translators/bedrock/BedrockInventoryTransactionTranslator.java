@@ -42,18 +42,16 @@ import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import com.nukkitx.protocol.bedrock.packet.InventoryTransactionPacket;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.entity.ItemFrameEntity;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.item.ItemEntry;
 import org.geysermc.connector.network.translators.item.ItemTranslator;
 import org.geysermc.connector.network.translators.sound.EntitySoundInteractionHandler;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.InventoryUtils;
 
 @Translator(packet = InventoryTransactionPacket.class)
 public class BedrockInventoryTransactionTranslator extends PacketTranslator<InventoryTransactionPacket> {
@@ -64,20 +62,20 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
             case NORMAL:
                 Inventory inventory = session.getInventoryCache().getOpenInventory();
                 if (inventory == null) inventory = session.getInventory();
-                Translators.getInventoryTranslators().get(inventory.getWindowType()).translateActions(session, inventory, packet.getActions());
+                GeyserEdition.TRANSLATORS.getInventoryTranslators().get(inventory.getWindowType()).translateActions(session, inventory, packet.getActions());
                 break;
             case INVENTORY_MISMATCH:
                 Inventory inv = session.getInventoryCache().getOpenInventory();
                 if (inv == null) inv = session.getInventory();
-                Translators.getInventoryTranslators().get(inv.getWindowType()).updateInventory(session, inv);
-                InventoryUtils.updateCursor(session);
+                GeyserEdition.TRANSLATORS.getInventoryTranslators().get(inv.getWindowType()).updateInventory(session, inv);
+                GeyserEdition.INVENTORY_UTILS.updateCursor(session);
                 break;
             case ITEM_USE:
                 switch (packet.getActionType()) {
                     case 0:
 
                         // Bedrock sends block interact code for a Java entity so we send entity code back to Java
-                        if (BlockTranslator.isItemFrame(packet.getBlockRuntimeId()) &&
+                        if (GeyserEdition.TRANSLATORS.getBlockTranslator().isItemFrame(packet.getBlockRuntimeId()) &&
                                 session.getEntityCache().getEntityByJavaId(ItemFrameEntity.getItemFrameEntityId(session, packet.getBlockPosition())) != null) {
                             Vector3f vector = packet.getClickPosition();
                             ClientPlayerInteractEntityPacket interactPacket = new ClientPlayerInteractEntityPacket((int) ItemFrameEntity.getItemFrameEntityId(session, packet.getBlockPosition()),
@@ -118,7 +116,7 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
                                 blockPos = blockPos.add(1, 0, 0);
                                 break;
                         }
-                        ItemEntry handItem = Translators.getItemTranslator().getItem(packet.getItemInHand());
+                        ItemEntry handItem = GeyserEdition.TRANSLATORS.getItemTranslator().getItem(packet.getItemInHand());
                         if (handItem.isBlock()) {
                             session.setLastBlockPlacePosition(blockPos);
                             session.setLastBlockPlacedId(handItem.getJavaIdentifier());
@@ -135,7 +133,7 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
                         break;
                     case 2:
                         BlockState blockState = session.getConnector().getWorldManager().getBlockAt(session, packet.getBlockPosition().getX(), packet.getBlockPosition().getY(), packet.getBlockPosition().getZ());
-                        double blockHardness = BlockTranslator.JAVA_RUNTIME_ID_TO_HARDNESS.get(blockState.getId());
+                        double blockHardness = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(blockState.getId());
                         if (session.getGameMode() == GameMode.CREATIVE || (session.getConnector().getConfig().isCacheChunks() && blockHardness == 0)) {
                             session.setLastBlockPlacedId(null);
                             session.setLastBlockPlacePosition(null);
@@ -143,7 +141,7 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
                             LevelEventPacket blockBreakPacket = new LevelEventPacket();
                             blockBreakPacket.setType(LevelEventType.DESTROY);
                             blockBreakPacket.setPosition(packet.getBlockPosition().toFloat());
-                            blockBreakPacket.setData(BlockTranslator.getBedrockBlockId(blockState));
+                            blockBreakPacket.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState));
                             session.sendUpstreamPacket(blockBreakPacket);
                         }
 

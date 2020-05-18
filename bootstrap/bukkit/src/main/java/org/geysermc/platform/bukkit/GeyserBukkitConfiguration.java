@@ -133,6 +133,12 @@ public class GeyserBukkitConfiguration implements GeyserConfiguration {
 
     public class BukkitBedrockConfiguration implements IBedrockConfiguration {
 
+        private BukkitEducationConfiguration education;
+
+        public BukkitBedrockConfiguration() {
+            education = new BukkitEducationConfiguration();
+        }
+
         @Override
         public String getAddress() {
             return config.getString("bedrock.address", "0.0.0.0");
@@ -151,6 +157,28 @@ public class GeyserBukkitConfiguration implements GeyserConfiguration {
         @Override
         public String getMotd2() {
             return config.getString("bedrock.motd2", "GeyserMC");
+        }
+
+        @Override
+        public String getEdition() {
+            return config.getString("edition", "bedrock");
+        }
+
+        @Override
+        public String getVersion() {
+            return config.getString("version", "latest");
+        }
+
+        @Override
+        public IEducationConfiguration getEducation() {
+            return education;
+        }
+
+        public class BukkitEducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
+            @Override
+            public String getToken() {
+                return config.getString("bedrock.education.token");
+            }
         }
     }
 

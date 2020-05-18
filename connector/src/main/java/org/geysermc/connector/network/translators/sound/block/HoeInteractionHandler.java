@@ -29,10 +29,10 @@ package org.geysermc.connector.network.translators.sound.block;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.SoundEvent;
 import com.nukkitx.protocol.bedrock.packet.LevelSoundEventPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.sound.BlockSoundInteractionHandler;
 import org.geysermc.connector.network.translators.sound.SoundHandler;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 
 @SoundHandler(blocks = "farmland", items = "hoe", ignoreSneakingWhileHolding = true)
 public class HoeInteractionHandler implements BlockSoundInteractionHandler {
@@ -45,7 +45,7 @@ public class HoeInteractionHandler implements BlockSoundInteractionHandler {
         levelSoundEventPacket.setRelativeVolumeDisabled(false);
         levelSoundEventPacket.setIdentifier(":");
         levelSoundEventPacket.setSound(SoundEvent.ITEM_USE_ON);
-        levelSoundEventPacket.setExtraData(BlockTranslator.getBedrockBlockId(BlockTranslator.getJavaBlockState(identifier)));
+        levelSoundEventPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaBlockState(identifier)));
         session.sendUpstreamPacket(levelSoundEventPacket);
     }
 }

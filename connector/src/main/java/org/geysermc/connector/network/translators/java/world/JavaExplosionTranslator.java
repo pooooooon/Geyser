@@ -33,11 +33,10 @@ import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.data.SoundEvent;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import com.nukkitx.protocol.bedrock.packet.LevelSoundEventPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.ChunkUtils;
 
 @Translator(packet = ServerExplosionPacket.class)
 public class JavaExplosionTranslator extends PacketTranslator<ServerExplosionPacket> {
@@ -52,7 +51,7 @@ public class JavaExplosionTranslator extends PacketTranslator<ServerExplosionPac
             levelEventPacket.setData(0);
             levelEventPacket.setPosition(pos.toFloat());
             session.sendUpstreamPacket(levelEventPacket);
-            ChunkUtils.updateBlock(session, BlockTranslator.AIR, pos.toInt());
+            GeyserEdition.CHUNK_UTILS.updateBlock(session, GeyserEdition.TRANSLATORS.getBlockTranslator().getAir(), pos.toInt());
         }
         LevelSoundEventPacket levelSoundEventPacket = new LevelSoundEventPacket();
         levelSoundEventPacket.setRelativeVolumeDisabled(false);

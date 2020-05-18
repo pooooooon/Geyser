@@ -25,12 +25,12 @@
 
 package org.geysermc.connector.network.translators.java.entity;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.entity.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.EntityUtils;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEffectPacket;
 import com.nukkitx.protocol.bedrock.packet.MobEffectPacket;
@@ -54,7 +54,7 @@ public class JavaEntityEffectTranslator extends PacketTranslator<ServerEntityEff
         mobEffectPacket.setEvent(MobEffectPacket.Event.ADD);
         mobEffectPacket.setRuntimeEntityId(entity.getGeyserId());
         mobEffectPacket.setParticles(packet.isShowParticles());
-        mobEffectPacket.setEffectId(EntityUtils.toBedrockEffectId(packet.getEffect()));
+        mobEffectPacket.setEffectId(GeyserEdition.ENTITY_UTILS.toBedrockEffectId(packet.getEffect()));
         session.sendUpstreamPacket(mobEffectPacket);
     }
 }

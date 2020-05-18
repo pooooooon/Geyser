@@ -32,12 +32,12 @@ import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
 import org.geysermc.connector.network.translators.item.ItemEntry;
 import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.BlockUtils;
 
 @Translator(packet = ServerBlockBreakAnimPacket.class)
 public class JavaBlockBreakAnimTranslator extends PacketTranslator<ServerBlockBreakAnimPacket> {
@@ -45,7 +45,7 @@ public class JavaBlockBreakAnimTranslator extends PacketTranslator<ServerBlockBr
     @Override
     public void translate(ServerBlockBreakAnimPacket packet, GeyserSession session) {
         BlockState state = session.getConnector().getWorldManager().getBlockAt(session, packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ());
-        int breakTime = (int) (65535 / Math.ceil(BlockUtils.getBreakTime(BlockTranslator.JAVA_RUNTIME_ID_TO_HARDNESS.get(state.getId()), state.getId(), ItemEntry.AIR, new CompoundTag(""), null) * 20));
+        int breakTime = (int) (65535 / Math.ceil(GeyserEdition.BLOCK_UTILS.getBreakTime(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(state.getId()), state.getId(), ItemEntry.AIR, new CompoundTag(""), null) * 20));
         LevelEventPacket levelEventPacket = new LevelEventPacket();
         levelEventPacket.setPosition(Vector3f.from(
                 packet.getPosition().getX(),

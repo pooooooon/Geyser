@@ -29,6 +29,7 @@ import com.github.steveice10.mc.protocol.data.game.world.sound.BuiltinSound;
 import com.github.steveice10.mc.protocol.data.game.world.sound.CustomSound;
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerStopSoundPacket;
 import com.nukkitx.protocol.bedrock.packet.StopSoundPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
@@ -48,7 +49,7 @@ public class JavaPlayerStopSoundTranslator extends PacketTranslator<ServerStopSo
             session.getConnector().getLogger().debug("Unknown sound packet, we were unable to map this. " + packet.toString());
             return;
         }
-        SoundUtils.SoundMapping soundMapping = SoundUtils.fromJava(packetSound);
+        SoundUtils.SoundMapping soundMapping = GeyserEdition.SOUND_UTILS.fromJava(packetSound);
         session.getConnector().getLogger()
                 .debug("[StopSound] Sound mapping " + packetSound + " -> "
                         + soundMapping + (soundMapping == null ? "[not found]" : "")

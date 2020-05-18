@@ -32,15 +32,12 @@ import com.github.steveice10.opennbt.tag.builtin.*;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.PlayerInventory;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
-import org.geysermc.connector.network.translators.Translators;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.network.translators.item.ItemEntry;
-import org.geysermc.connector.utils.BlockUtils;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.ChunkUtils;
 
 @Translator(packet = ServerPlayerActionAckPacket.class)
 public class JavaPlayerActionAckTranslator extends PacketTranslator<ServerPlayerActionAckPacket> {
@@ -50,21 +47,21 @@ public class JavaPlayerActionAckTranslator extends PacketTranslator<ServerPlayer
         LevelEventPacket levelEvent = new LevelEventPacket();
         switch (packet.getAction()) {
             case FINISH_DIGGING:
-                double blockHardness = BlockTranslator.JAVA_RUNTIME_ID_TO_HARDNESS.get(session.getBreakingBlock() == null ? 0 : session.getBreakingBlock().getId());
+                double blockHardness = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(session.getBreakingBlock() == null ? 0 : session.getBreakingBlock().getId());
                 if (session.getGameMode() != GameMode.CREATIVE && blockHardness != 0) {
                     levelEvent.setType(LevelEventType.DESTROY);
                     levelEvent.setPosition(Vector3f.from(packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ()));
-                    levelEvent.setData(BlockTranslator.getBedrockBlockId(session.getBreakingBlock()));
+                    levelEvent.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(session.getBreakingBlock()));
                     session.sendUpstreamPacket(levelEvent);
                     session.setBreakingBlock(null);
                 }
-                ChunkUtils.updateBlock(session, packet.getNewState(), packet.getPosition());
+                GeyserEdition.CHUNK_UTILS.updateBlock(session, packet.getNewState(), packet.getPosition());
                 break;
             case START_DIGGING:
                 if (session.getGameMode() == GameMode.CREATIVE) {
                     break;
                 }
-                blockHardness = BlockTranslator.JAVA_RUNTIME_ID_TO_HARDNESS.get(packet.getNewState().getId());
+                blockHardness = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(packet.getNewState().getId());
                 levelEvent.setType(LevelEventType.BLOCK_START_BREAK);
                 levelEvent.setPosition(Vector3f.from(
                         packet.getPosition().getX(),
@@ -76,10 +73,10 @@ public class JavaPlayerActionAckTranslator extends PacketTranslator<ServerPlayer
                 ItemEntry itemEntry = null;
                 CompoundTag nbtData = new CompoundTag("");
                 if (item != null) {
-                    itemEntry = Translators.getItemTranslator().getItem(item);
+                    itemEntry = GeyserEdition.TRANSLATORS.getItemTranslator().getItem(item);
                     nbtData = item.getNbt();
                 }
-                double breakTime = Math.ceil(BlockUtils.getBreakTime(blockHardness, packet.getNewState().getId(), itemEntry, nbtData, session.getPlayerEntity()) * 20);
+                double breakTime = Math.ceil(GeyserEdition.BLOCK_UTILS.getBreakTime(blockHardness, packet.getNewState().getId(), itemEntry, nbtData, session.getPlayerEntity()) * 20);
                 levelEvent.setData((int) (65535 / breakTime));
                 session.setBreakingBlock(packet.getNewState());
                 session.sendUpstreamPacket(levelEvent);
