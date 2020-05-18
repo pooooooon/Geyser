@@ -27,11 +27,11 @@ package org.geysermc.connector.network.translators.bedrock;
 
 import com.github.steveice10.mc.protocol.packet.ingame.client.window.ClientCloseWindowPacket;
 import com.nukkitx.protocol.bedrock.packet.ContainerClosePacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.InventoryUtils;
 
 @Translator(packet = ContainerClosePacket.class)
 public class BedrockContainerCloseTranslator extends PacketTranslator<ContainerClosePacket> {
@@ -49,6 +49,6 @@ public class BedrockContainerCloseTranslator extends PacketTranslator<ContainerC
         }
         ClientCloseWindowPacket closeWindowPacket = new ClientCloseWindowPacket(windowId);
         session.sendDownstreamPacket(closeWindowPacket);
-        InventoryUtils.closeInventory(session, windowId);
+        GeyserEdition.INVENTORY_UTILS.closeInventory(session, windowId);
     }
 }

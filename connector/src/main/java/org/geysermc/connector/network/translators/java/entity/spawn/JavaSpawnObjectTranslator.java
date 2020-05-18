@@ -31,6 +31,7 @@ import com.github.steveice10.mc.protocol.data.game.entity.type.object.ObjectType
 import com.github.steveice10.mc.protocol.data.game.entity.type.object.ProjectileData;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnObjectPacket;
 import com.nukkitx.math.vector.Vector3f;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.entity.FallingBlockEntity;
 import org.geysermc.connector.entity.FishingHookEntity;
@@ -39,7 +40,6 @@ import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.EntityUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -54,7 +54,7 @@ public class JavaSpawnObjectTranslator extends PacketTranslator<ServerSpawnObjec
         Vector3f motion = Vector3f.from(packet.getMotionX(), packet.getMotionY(), packet.getMotionZ());
         Vector3f rotation = Vector3f.from(packet.getYaw(), packet.getPitch(), 0);
 
-        EntityType type = EntityUtils.toBedrockEntity(packet.getType());
+        EntityType type = GeyserEdition.ENTITY_UTILS.toBedrockEntity(packet.getType());
         if (type == null) {
             session.getConnector().getLogger().warning("Entity type " + packet.getType() + " was null.");
             return;

@@ -26,13 +26,11 @@
 package org.geysermc.connector.network.translators;
 
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
-import com.github.steveice10.mc.protocol.data.message.Message;
 import com.github.steveice10.opennbt.tag.builtin.*;
 import com.nukkitx.nbt.tag.CompoundTag;
 import com.nukkitx.nbt.tag.Tag;
 import com.nukkitx.protocol.bedrock.data.ItemData;
 import org.geysermc.connector.network.translators.item.ItemEntry;
-import org.geysermc.connector.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -31,6 +31,7 @@ import com.github.steveice10.mc.protocol.data.game.world.sound.CustomSound;
 import com.github.steveice10.mc.protocol.packet.ingame.server.world.ServerPlaySoundPacket;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.packet.*;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
@@ -51,7 +52,7 @@ public class JavaPlayerPlaySoundTranslator extends PacketTranslator<ServerPlaySo
             return;
         }
 
-        SoundUtils.SoundMapping soundMapping = SoundUtils.fromJava(packetSound.replace("minecraft:", ""));
+        SoundUtils.SoundMapping soundMapping = GeyserEdition.SOUND_UTILS.fromJava(packetSound.replace("minecraft:", ""));
         session.getConnector().getLogger()
                 .debug("[PlaySound] Sound mapping " + packetSound + " -> "
                         + soundMapping + (soundMapping == null ? "[not found]" : "")

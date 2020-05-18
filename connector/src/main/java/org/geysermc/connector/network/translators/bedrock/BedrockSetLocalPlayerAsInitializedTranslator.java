@@ -25,11 +25,11 @@
 
 package org.geysermc.connector.network.translators.bedrock;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.SkinUtils;
 
 import com.nukkitx.protocol.bedrock.packet.SetLocalPlayerAsInitializedPacket;
 
@@ -45,7 +45,7 @@ public class BedrockSetLocalPlayerAsInitializedTranslator extends PacketTranslat
                 for (PlayerEntity entity : session.getEntityCache().getEntitiesByType(PlayerEntity.class)) {
                     if (!entity.isValid()) {
                         // async skin loading
-                        SkinUtils.requestAndHandleSkinAndCape(entity, session, skinAndCape -> entity.sendPlayer(session));
+                        GeyserEdition.SKIN_UTILS.requestAndHandleSkinAndCape(entity, session, skinAndCape -> entity.sendPlayer(session));
                     }
                 }
             }

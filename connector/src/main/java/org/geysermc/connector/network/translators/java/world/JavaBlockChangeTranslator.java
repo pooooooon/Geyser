@@ -30,12 +30,11 @@ import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.protocol.bedrock.data.SoundEvent;
 import com.nukkitx.protocol.bedrock.packet.LevelSoundEventPacket;
 import org.geysermc.common.PlatformType;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
 import org.geysermc.connector.network.translators.sound.BlockSoundInteractionHandler;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.ChunkUtils;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.world.ServerBlockChangePacket;
 
@@ -46,7 +45,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
     public void translate(ServerBlockChangePacket packet, GeyserSession session) {
         Position pos = packet.getRecord().getPosition();
         boolean updatePlacement = !(session.getConnector().getConfig().isCacheChunks() && session.getConnector().getWorldManager().getBlockAt(session, pos.getX(), pos.getY(), pos.getZ()).getId() == packet.getRecord().getBlock().getId());
-        ChunkUtils.updateBlock(session, packet.getRecord().getBlock(), packet.getRecord().getPosition());
+        GeyserEdition.CHUNK_UTILS.updateBlock(session, packet.getRecord().getBlock(), packet.getRecord().getPosition());
         if (updatePlacement && session.getConnector().getPlatformType() != PlatformType.BUKKIT) {
             this.checkPlace(session, packet);
         }
@@ -67,7 +66,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
         // We need to check if the identifier is the same, else a packet with the sound of what the
         // player has in their hand is played, despite if the block is being placed or not
         boolean contains = false;
-        String identifier = BlockTranslator.getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock()).split("\\[")[0];
+        String identifier = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock()).split("\\[")[0];
         if (identifier.equals(session.getLastBlockPlacedId())) {
             contains = true;
         }
@@ -83,7 +82,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
         placeBlockSoundPacket.setSound(SoundEvent.PLACE);
         placeBlockSoundPacket.setPosition(lastPlacePos.toFloat());
         placeBlockSoundPacket.setBabySound(false);
-        placeBlockSoundPacket.setExtraData(BlockTranslator.getBedrockBlockId(packet.getRecord().getBlock()));
+        placeBlockSoundPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(packet.getRecord().getBlock()));
         placeBlockSoundPacket.setIdentifier(":");
         session.sendUpstreamPacket(placeBlockSoundPacket);
         session.setLastBlockPlacePosition(null);
@@ -101,7 +100,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
                 || lastInteractPos.getZ() != packet.getRecord().getPosition().getZ())) {
             return;
         }
-        String identifier = BlockTranslator.getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock());
+        String identifier = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock());
         session.setInteracting(false);
         session.setLastInteractionPosition(null);
         BlockSoundInteractionHandler.handleBlockInteraction(session, lastInteractPos.toFloat(), identifier);

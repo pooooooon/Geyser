@@ -26,28 +26,26 @@
 package org.geysermc.connector.network.translators.java.world;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.world.ServerUpdateTileEntityPacket;
-
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
 import org.geysermc.connector.network.translators.world.block.entity.BlockEntityTranslator;
-import org.geysermc.connector.utils.BlockEntityUtils;
-import org.geysermc.connector.utils.ChunkUtils;
 
 @Translator(packet = ServerUpdateTileEntityPacket.class)
 public class JavaUpdateTileEntityTranslator extends PacketTranslator<ServerUpdateTileEntityPacket> {
 
     @Override
     public void translate(ServerUpdateTileEntityPacket packet, GeyserSession session) {
-        String id = BlockEntityUtils.getBedrockBlockEntityId(packet.getType().name());
-        BlockEntityTranslator translator = BlockEntityUtils.getBlockEntityTranslator(id);
+        String id = GeyserEdition.BLOCK_ENTITY_UTILS.getBedrockBlockEntityId(packet.getType().name());
+        BlockEntityTranslator translator = GeyserEdition.BLOCK_ENTITY_UTILS.getBlockEntityTranslator(id);
         // If not null then the BlockState is used in BlockEntityTranslator.translateTag()
-        if (ChunkUtils.CACHED_BLOCK_ENTITIES.get(packet.getPosition()) != null) {
-            BlockEntityUtils.updateBlockEntity(session, translator.getBlockEntityTag(id, packet.getNbt(),
-                    ChunkUtils.CACHED_BLOCK_ENTITIES.get(packet.getPosition())), packet.getPosition());
-            ChunkUtils.CACHED_BLOCK_ENTITIES.remove(packet.getPosition());
+        if (GeyserEdition.CHUNK_UTILS.getCachedBlockEntities().get(packet.getPosition()) != null) {
+            GeyserEdition.BLOCK_ENTITY_UTILS.updateBlockEntity(session, translator.getBlockEntityTag(id, packet.getNbt(),
+                    GeyserEdition.CHUNK_UTILS.getCachedBlockEntities().get(packet.getPosition())), packet.getPosition());
+            GeyserEdition.CHUNK_UTILS.getCachedBlockEntities().remove(packet.getPosition());
         } else {
-            BlockEntityUtils.updateBlockEntity(session, translator.getBlockEntityTag(id, packet.getNbt(), null), packet.getPosition());
+            GeyserEdition.BLOCK_ENTITY_UTILS.updateBlockEntity(session, translator.getBlockEntityTag(id, packet.getNbt(), null), packet.getPosition());
         }
     }
 }

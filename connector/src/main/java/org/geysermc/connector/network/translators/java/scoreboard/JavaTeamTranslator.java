@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
@@ -50,20 +51,21 @@ public class JavaTeamTranslator extends PacketTranslator<ServerTeamPacket> {
 
         Scoreboard scoreboard = session.getScoreboardCache().getScoreboard();
         Team team = scoreboard.getTeam(packet.getTeamName());
+        MessageUtils messageUtils = GeyserEdition.MESSAGE_UTILS;
         switch (packet.getAction()) {
             case CREATE:
                 scoreboard.registerNewTeam(packet.getTeamName(), toPlayerSet(packet.getPlayers()))
-                        .setName(MessageUtils.getBedrockMessage(packet.getDisplayName()))
+                        .setName(messageUtils.getBedrockMessage(packet.getDisplayName()))
                         .setColor(packet.getColor())
-                        .setPrefix(MessageUtils.getBedrockMessage(packet.getPrefix()))
-                        .setSuffix(MessageUtils.getBedrockMessage(packet.getSuffix()));
+                        .setPrefix(messageUtils.getBedrockMessage(packet.getPrefix()))
+                        .setSuffix(messageUtils.getBedrockMessage(packet.getSuffix()));
                 break;
             case UPDATE:
                 if (team != null) {
-                    team.setName(MessageUtils.getBedrockMessage(packet.getDisplayName()))
+                    team.setName(messageUtils.getBedrockMessage(packet.getDisplayName()))
                             .setColor(packet.getColor())
-                            .setPrefix(MessageUtils.getBedrockMessage(packet.getPrefix()))
-                            .setSuffix(MessageUtils.getBedrockMessage(packet.getSuffix()))
+                            .setPrefix(messageUtils.getBedrockMessage(packet.getPrefix()))
+                            .setSuffix(messageUtils.getBedrockMessage(packet.getSuffix()))
                             .setUpdateType(UpdateType.UPDATE);
                 } else {
                     GeyserConnector.getInstance().getLogger().error("Error while translating Team Packet " + packet.getAction() + "! Scoreboard Team " + packet.getTeamName() + " is not registered.");

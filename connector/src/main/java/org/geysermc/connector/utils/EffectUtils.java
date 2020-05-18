@@ -33,9 +33,11 @@ import com.nukkitx.protocol.bedrock.data.SoundEvent;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
+import lombok.Getter;
 import lombok.NonNull;
 
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.translators.effect.Effect;
 
 import java.io.InputStream;
@@ -43,21 +45,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+@Getter
 public class EffectUtils {
 
-    public static final Map<String, Effect> EFFECTS = new HashMap<>();
-    public static final Int2ObjectMap<SoundEvent> RECORDS = new Int2ObjectOpenHashMap<>();
+    public final Map<String, Effect> effects = new HashMap<>();
+    public final Int2ObjectMap<SoundEvent> records = new Int2ObjectOpenHashMap<>();
 
-    private static Map<ParticleType, LevelEventType> particleTypeMap = new HashMap<>();
-    private static Map<ParticleType, String> particleStringMap = new HashMap<>();
+    private Map<ParticleType, LevelEventType> particleTypeMap = new HashMap<>();
+    private Map<ParticleType, String> particleStringMap = new HashMap<>();
 
-    public static void init() {
-        // no-op
-    }
+    private GeyserEdition edition;
 
-    static {
+    public EffectUtils(GeyserEdition edition) {
+        this.edition = edition;
+
         /* Load particles */
-        InputStream particleStream = Toolbox.getResource("mappings/particles.json");
+        InputStream particleStream = GeyserEdition.TOOLBOX.getResource("mappings/particles.json");
         JsonNode particleEntries;
         try {
             particleEntries = Toolbox.JSON_MAPPER.readTree(particleStream);
@@ -85,7 +88,7 @@ public class EffectUtils {
         }
 
         /* Load effects */
-        InputStream effectsStream = Toolbox.getResource("mappings/effects.json");
+        InputStream effectsStream = GeyserEdition.TOOLBOX.getResource("mappings/effects.json");
         JsonNode effects;
         try {
             effects = Toolbox.JSON_MAPPER.readTree(effectsStream);
@@ -102,29 +105,29 @@ public class EffectUtils {
                 Iterator<Map.Entry<String, JsonNode>> recordsIterator = records.fields();
                 while (recordsIterator.hasNext()) {
                     Map.Entry<String, JsonNode> recordEntry = recordsIterator.next();
-                    RECORDS.put(Integer.parseInt(recordEntry.getKey()), SoundEvent.valueOf(recordEntry.getValue().asText()));
+                    this.records.put(Integer.parseInt(recordEntry.getKey()), SoundEvent.valueOf(recordEntry.getValue().asText()));
                 }
             }
             String identifier = (entry.getValue().has("identifier")) ? entry.getValue().get("identifier").asText() : "";
             int data = (entry.getValue().has("data")) ? entry.getValue().get("data").asInt() : -1;
             Effect effect = new Effect(entry.getKey(), entry.getValue().get("name").asText(), entry.getValue().get("type").asText(), data, identifier);
-            EFFECTS.put(entry.getKey(), effect);
+            this.effects.put(entry.getKey(), effect);
         }
     }
 
-    public static void setIdentifier(ParticleType type, LevelEventType identifier) {
+    public void setIdentifier(ParticleType type, LevelEventType identifier) {
         particleTypeMap.put(type, identifier);
     }
 
-    public static void setIdentifier(ParticleType type, String identifier) {
+    public void setIdentifier(ParticleType type, String identifier) {
         particleStringMap.put(type, identifier);
     }
 
-    public static LevelEventType getParticleLevelEventType(@NonNull ParticleType type) {
+    public LevelEventType getParticleLevelEventType(@NonNull ParticleType type) {
         return particleTypeMap.getOrDefault(type, null);
     }
 
-    public static String getParticleString(@NonNull ParticleType type){
+    public String getParticleString(@NonNull ParticleType type) {
         return particleStringMap.getOrDefault(type, null);
     }
 

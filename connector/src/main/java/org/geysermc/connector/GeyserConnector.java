@@ -25,9 +25,7 @@
 
 package org.geysermc.connector;
 
-import com.nukkitx.protocol.bedrock.BedrockPacketCodec;
 import com.nukkitx.protocol.bedrock.BedrockServer;
-import com.nukkitx.protocol.bedrock.v390.Bedrock_v390;
 import lombok.Getter;
 import org.geysermc.common.AuthType;
 import org.geysermc.common.PlatformType;
@@ -37,11 +35,9 @@ import org.geysermc.connector.metrics.Metrics;
 import org.geysermc.connector.network.ConnectorServerEventHandler;
 import org.geysermc.connector.network.remote.RemoteServer;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.world.WorldManager;
 import org.geysermc.connector.thread.PingPassthroughThread;
 import org.geysermc.connector.utils.DockerCheck;
-import org.geysermc.connector.utils.Toolbox;
 
 import java.net.InetSocketAddress;
 import java.text.DecimalFormat;
@@ -54,8 +50,6 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 public class GeyserConnector {
-
-    public static final BedrockPacketCodec BEDROCK_PACKET_CODEC = Bedrock_v390.V390_CODEC;
 
     public static final String NAME = "Geyser";
     public static final String VERSION = "DEV"; // A fallback for running in IDEs
@@ -76,17 +70,22 @@ public class GeyserConnector {
     private PlatformType platformType;
     private GeyserBootstrap bootstrap;
 
+    private final GeyserLogger logger;
+    private final GeyserConfiguration config;
+
+    private GeyserEdition edition;
+
     private Metrics metrics;
 
-    private GeyserConnector(PlatformType platformType, GeyserBootstrap bootstrap) {
+    private GeyserConnector(PlatformType platformType, GeyserBootstrap bootstrap) throws GeyserConnectorException {
         long startupTime = System.currentTimeMillis();
 
         instance = this;
 
         this.bootstrap = bootstrap;
 
-        GeyserLogger logger = bootstrap.getGeyserLogger();
-        GeyserConfiguration config = bootstrap.getGeyserConfig();
+        logger = bootstrap.getGeyserLogger();
+        config = bootstrap.getGeyserConfig();
 
         this.platformType = platformType;
 
@@ -100,8 +99,18 @@ public class GeyserConnector {
 
         logger.setDebug(config.isDebugMode());
 
-        Toolbox.init();
-        Translators.start();
+        // Register Editions
+        GeyserEdition.registerEdition("bedrock", "latest", org.geysermc.connector.edition.mcpe.v1_14_60.Edition.class);
+        GeyserEdition.registerEdition("bedrock", "1.14.60", org.geysermc.connector.edition.mcpe.v1_14_60.Edition.class);
+
+        GeyserEdition.registerEdition("education", "latest", org.geysermc.connector.edition.mcee.v1_12_60.Edition.class);
+        GeyserEdition.registerEdition("education", "1.12.60", org.geysermc.connector.edition.mcee.v1_12_60.Edition.class);
+
+        try {
+            this.edition = GeyserEdition.create(this, config.getBedrock().getEdition(), config.getBedrock().getVersion());
+        } catch (GeyserEdition.InvalidEditionException e) {
+            throw new GeyserConnectorException(e.getMessage(), e.getCause());
+        }
 
         if (platformType != PlatformType.STANDALONE) {
             DockerCheck.check(bootstrap);
@@ -131,6 +140,7 @@ public class GeyserConnector {
             metrics.addCustomChart(new Metrics.SingleLineChart("players", players::size));
             metrics.addCustomChart(new Metrics.SimplePie("authMode", authType.name()::toLowerCase));
             metrics.addCustomChart(new Metrics.SimplePie("platform", platformType::getPlatformName));
+            metrics.addCustomChart(new Metrics.SimplePie("edition", () -> config.getBedrock().getEdition() + "-" + config.getBedrock().getVersion()));
         }
 
         double completeTime = (System.currentTimeMillis() - startupTime) / 1000D;
@@ -193,7 +203,7 @@ public class GeyserConnector {
         players.remove(player.getSocketAddress());
     }
 
-    public static GeyserConnector start(PlatformType platformType, GeyserBootstrap bootstrap) {
+    public static GeyserConnector start(PlatformType platformType, GeyserBootstrap bootstrap) throws GeyserConnectorException {
         return new GeyserConnector(platformType, bootstrap);
     }
 
@@ -220,5 +230,11 @@ public class GeyserConnector {
 
     public static GeyserConnector getInstance() {
         return instance;
+    }
+
+    public static class GeyserConnectorException extends Exception {
+        public GeyserConnectorException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

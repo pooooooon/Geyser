@@ -29,7 +29,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.nukkitx.protocol.bedrock.data.SoundEvent;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.ToString;
+import org.geysermc.connector.GeyserEdition;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,17 +39,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+@Getter
 public class SoundUtils {
 
-    private static final Map<String, SoundMapping> SOUNDS;
+    private final Map<String, SoundMapping> sounds = new HashMap<>();
+    private final GeyserEdition edition;
 
-    public static void init() {
-        // no-op
-    }
+    public SoundUtils(GeyserEdition edition) {
+        this.edition = edition;
 
-    static {
         /* Load sound mappings */
-        InputStream stream  = Toolbox.getResource("mappings/sounds.json");
+        InputStream stream = GeyserEdition.TOOLBOX.getResource("mappings/sounds.json");
         JsonNode soundsTree;
         try {
             soundsTree = Toolbox.JSON_MAPPER.readTree(stream);
@@ -55,13 +57,12 @@ public class SoundUtils {
             throw new AssertionError("Unable to load sound mappings", e);
         }
 
-        Map<String, SoundMapping> soundMappings = new HashMap<>();
         Iterator<Map.Entry<String, JsonNode>> soundsIterator = soundsTree.fields();
         while(soundsIterator.hasNext()) {
             Map.Entry<String, JsonNode> next = soundsIterator.next();
             JsonNode brMap = next.getValue();
 
-            soundMappings.put(next.getKey(), new SoundMapping(
+            sounds.put(next.getKey(), new SoundMapping(
                             next.getKey(),
                             brMap.has("bedrock_mapping") && brMap.get("bedrock_mapping").isTextual() ? brMap.get("bedrock_mapping").asText() : null,
                             brMap.has("playsound_mapping") && brMap.get("playsound_mapping").isTextual() ? brMap.get("playsound_mapping").asText() : null,
@@ -71,7 +72,6 @@ public class SoundUtils {
                     )
             );
         }
-        SOUNDS = soundMappings;
     }
 
     /**
@@ -79,11 +79,11 @@ public class SoundUtils {
      * @param java Java edition sound identifier
      * @return SoundMapping object with information for bedrock, nukkit, java, etc. null if not found
      */
-    public static SoundMapping fromJava(String java) {
-        return SOUNDS.get(java);
+    public SoundMapping fromJava(String java) {
+        return sounds.get(java);
     }
 
-    public static SoundEvent toSoundEvent(String sound) {
+    public SoundEvent toSoundEvent(String sound) {
         try {
             return SoundEvent.valueOf(sound.toUpperCase().replaceAll("\\.", "_"));
         } catch (Exception ex) {

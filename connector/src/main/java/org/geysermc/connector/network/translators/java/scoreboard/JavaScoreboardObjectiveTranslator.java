@@ -25,6 +25,7 @@
 
 package org.geysermc.connector.network.translators.java.scoreboard;
 
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.session.cache.ScoreboardCache;
 import org.geysermc.connector.network.translators.PacketTranslator;
@@ -53,7 +54,7 @@ public class JavaScoreboardObjectiveTranslator extends PacketTranslator<ServerSc
         switch (packet.getAction()) {
             case ADD:
             case UPDATE:
-                objective.setDisplayName(MessageUtils.getBedrockMessage(packet.getDisplayName()));
+                objective.setDisplayName(GeyserEdition.MESSAGE_UTILS.getBedrockMessage(packet.getDisplayName()));
                 objective.setType(packet.getType().ordinal());
                 break;
             case REMOVE:

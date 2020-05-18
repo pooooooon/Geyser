@@ -26,7 +26,6 @@
 package org.geysermc.connector.entity;
 
 import com.github.steveice10.mc.auth.data.GameProfile;
-import com.github.steveice10.mc.protocol.data.game.entity.Effect;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadata;
 import com.github.steveice10.mc.protocol.data.message.TextMessage;
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
@@ -38,12 +37,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.scoreboard.Team;
-import org.geysermc.connector.utils.MessageUtils;
 import org.geysermc.connector.network.session.cache.EntityEffectCache;
-import org.geysermc.connector.utils.SkinUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +109,7 @@ public class PlayerEntity extends LivingEntity {
             if (playerList) {
                 PlayerListPacket playerList = new PlayerListPacket();
                 playerList.setAction(PlayerListPacket.Action.ADD);
-                playerList.getEntries().add(SkinUtils.buildDefaultEntry(profile, geyserId));
+                playerList.getEntries().add(GeyserEdition.SKIN_UTILS.buildDefaultEntry(profile, geyserId));
                 session.sendUpstreamPacket(playerList);
             }
         }
@@ -196,12 +194,12 @@ public class PlayerEntity extends LivingEntity {
             String username = this.username;
             TextMessage name = (TextMessage) entityMetadata.getValue();
             if (name != null) {
-                username = MessageUtils.getBedrockMessage(name);
+                username = GeyserEdition.MESSAGE_UTILS.getBedrockMessage(name);
             }
             Team team = session.getScoreboardCache().getScoreboard().getTeamFor(username);
             if (team != null) {
                 // session.getConnector().getLogger().info("team name es " + team.getName() + " with prefix " + team.getPrefix() + " and suffix " + team.getSuffix());
-                metadata.put(EntityData.NAMETAG, team.getPrefix() + MessageUtils.toChatColor(team.getColor()) + username + team.getSuffix());
+                metadata.put(EntityData.NAMETAG, team.getPrefix() + GeyserEdition.MESSAGE_UTILS.toChatColor(team.getColor()) + username + team.getSuffix());
             }
         }
 

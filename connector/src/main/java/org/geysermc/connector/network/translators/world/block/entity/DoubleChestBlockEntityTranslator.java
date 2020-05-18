@@ -33,10 +33,10 @@ import com.nukkitx.nbt.CompoundTagBuilder;
 import com.nukkitx.nbt.tag.ByteTag;
 import com.nukkitx.nbt.tag.IntTag;
 import com.nukkitx.nbt.tag.Tag;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.world.block.BlockStateValues;
 import org.geysermc.connector.network.translators.world.block.DoubleChestValue;
-import org.geysermc.connector.utils.BlockEntityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +55,9 @@ public class DoubleChestBlockEntityTranslator extends BlockEntityTranslator impl
     @Override
     public void updateBlock(GeyserSession session, BlockState blockState, Vector3i position) {
         CompoundTag javaTag = getConstantJavaTag("chest", position.getX(), position.getY(), position.getZ());
-        CompoundTagBuilder tagBuilder = getConstantBedrockTag(BlockEntityUtils.getBedrockBlockEntityId("chest"), position.getX(), position.getY(), position.getZ()).toBuilder();
+        CompoundTagBuilder tagBuilder = getConstantBedrockTag(GeyserEdition.BLOCK_ENTITY_UTILS.getBedrockBlockEntityId("chest"), position.getX(), position.getY(), position.getZ()).toBuilder();
         translateTag(javaTag, blockState).forEach(tagBuilder::tag);
-        BlockEntityUtils.updateBlockEntity(session, tagBuilder.buildRootTag(), position);
+        GeyserEdition.BLOCK_ENTITY_UTILS.updateBlockEntity(session, tagBuilder.buildRootTag(), position);
     }
 
     @Override

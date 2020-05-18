@@ -28,11 +28,11 @@ package org.geysermc.connector.network.translators.java.entity.spawn;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket;
 import com.nukkitx.math.vector.Vector3f;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.SkinUtils;
 
 @Translator(packet = ServerSpawnPlayerPacket.class)
 public class JavaSpawnPlayerTranslator extends PacketTranslator<ServerSpawnPlayerPacket> {
@@ -55,7 +55,7 @@ public class JavaSpawnPlayerTranslator extends PacketTranslator<ServerSpawnPlaye
 
         // async skin loading
         if (session.getUpstream().isInitialized()) {
-            SkinUtils.requestAndHandleSkinAndCape(entity, session, skinAndCape -> entity.sendPlayer(session));
+            GeyserEdition.SKIN_UTILS.requestAndHandleSkinAndCape(entity, session, skinAndCape -> entity.sendPlayer(session));
         }
     }
 }

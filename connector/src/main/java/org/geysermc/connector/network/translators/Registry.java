@@ -28,32 +28,25 @@ package org.geysermc.connector.network.translators;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.network.session.GeyserSession;
 
-import com.github.steveice10.packetlib.packet.Packet;
-import com.nukkitx.protocol.bedrock.BedrockPacket;
 
+@Getter
 public class Registry<T> {
-    private final Map<Class<? extends T>, PacketTranslator<? extends T>> MAP = new HashMap<>();
+    private final Map<Class<? extends T>, PacketTranslator<? extends T>> map = new HashMap<>();
 
-    public static final Registry<Packet> JAVA = new Registry<>();
-    public static final Registry<BedrockPacket> BEDROCK = new Registry<>();
-
-    public static void registerJava(Class<? extends Packet> targetPacket, PacketTranslator<? extends Packet> translator) {
-        JAVA.MAP.put(targetPacket, translator);
-    }
-
-    public static void registerBedrock(Class<? extends BedrockPacket> targetPacket, PacketTranslator<? extends BedrockPacket> translator) {
-        BEDROCK.MAP.put(targetPacket, translator);
+    public void register(Class<? extends T> targetPacket, PacketTranslator<? extends T> translator) {
+        map.put(targetPacket, translator);
     }
 
     @SuppressWarnings("unchecked")
     public <P extends T> boolean translate(Class<? extends P> clazz, P packet, GeyserSession session) {
         if (!session.getUpstream().isClosed() && !session.isClosed()) {
             try {
-                if (MAP.containsKey(clazz)) {
-                    ((PacketTranslator<P>) MAP.get(clazz)).translate(packet, session);
+                if (map.containsKey(clazz)) {
+                    ((PacketTranslator<P>) map.get(clazz)).translate(packet, session);
                     return true;
                 } else {
                     GeyserConnector.getInstance().getLogger().debug("Could not find packet for " + (packet.toString().length() > 25 ? packet.getClass().getSimpleName() : packet));

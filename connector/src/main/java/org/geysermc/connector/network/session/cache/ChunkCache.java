@@ -30,8 +30,8 @@ import com.github.steveice10.mc.protocol.data.game.chunk.Column;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.Position;
 import com.github.steveice10.mc.protocol.data.game.world.block.BlockState;
 import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.network.translators.world.chunk.ChunkPosition;
 
 import java.util.HashMap;
@@ -76,11 +76,11 @@ public class ChunkCache {
 
     public BlockState getBlockAt(Position position) {
         if (!cache) {
-            return BlockTranslator.AIR;
+            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
         }
         ChunkPosition chunkPosition = new ChunkPosition(position.getX() >> 4, position.getZ() >> 4);
         if (!chunks.containsKey(chunkPosition))
-            return BlockTranslator.AIR;
+            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
 
         Column column = chunks.get(chunkPosition);
         Chunk chunk = column.getChunks()[position.getY() >> 4];
@@ -89,7 +89,7 @@ public class ChunkCache {
             return chunk.get(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
         }
 
-        return BlockTranslator.AIR;
+        return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
     }
 
     public void removeChunk(ChunkPosition position) {

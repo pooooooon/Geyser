@@ -34,9 +34,9 @@ import com.nukkitx.protocol.bedrock.packet.BlockEntityDataPacket;
 import com.nukkitx.protocol.bedrock.packet.ContainerOpenPacket;
 import com.nukkitx.protocol.bedrock.packet.UpdateBlockPacket;
 import lombok.AllArgsConstructor;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
 import org.geysermc.connector.utils.LocaleUtils;
 
@@ -86,7 +86,7 @@ public class BlockInventoryHolder extends InventoryHolder {
         UpdateBlockPacket blockPacket = new UpdateBlockPacket();
         blockPacket.setDataLayer(0);
         blockPacket.setBlockPosition(holderPos);
-        blockPacket.setRuntimeId(BlockTranslator.getBedrockBlockId(realBlock));
+        blockPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(realBlock));
         session.sendUpstreamPacket(blockPacket);
     }
 }

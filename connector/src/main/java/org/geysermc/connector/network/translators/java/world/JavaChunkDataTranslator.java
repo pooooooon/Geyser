@@ -39,6 +39,7 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.BiomeTranslator;
 import org.geysermc.connector.network.translators.PacketTranslator;
@@ -52,7 +53,7 @@ public class JavaChunkDataTranslator extends PacketTranslator<ServerChunkDataPac
     @Override
     public void translate(ServerChunkDataPacket packet, GeyserSession session) {
         if (session.isSpawned()) {
-            ChunkUtils.updateChunkPosition(session, session.getPlayerEntity().getPosition().toInt());
+            GeyserEdition.CHUNK_UTILS.updateChunkPosition(session, session.getPlayerEntity().getPosition().toInt());
         }
 
         if (packet.getColumn().getBiomeData() == null) //Non-full chunk
@@ -60,7 +61,7 @@ public class JavaChunkDataTranslator extends PacketTranslator<ServerChunkDataPac
 
         GeyserConnector.getInstance().getGeneralThreadPool().execute(() -> {
             try {
-                ChunkUtils.ChunkData chunkData = ChunkUtils.translateToBedrock(packet.getColumn());
+                ChunkUtils.ChunkData chunkData = GeyserEdition.CHUNK_UTILS.translateToBedrock(packet.getColumn());
                 ByteBuf byteBuf = Unpooled.buffer(32);
                 ChunkSection[] sections = chunkData.sections;
 
@@ -105,7 +106,7 @@ public class JavaChunkDataTranslator extends PacketTranslator<ServerChunkDataPac
                     int x = blockEntityEntry.getKey().getInt("x");
                     int y = blockEntityEntry.getKey().getInt("y");
                     int z = blockEntityEntry.getKey().getInt("z");
-                    ChunkUtils.updateBlock(session, new BlockState(blockEntityEntry.getIntValue()), new Position(x, y, z));
+                    GeyserEdition.CHUNK_UTILS.updateBlock(session, new BlockState(blockEntityEntry.getIntValue()), new Position(x, y, z));
                 }
                 chunkData.getLoadBlockEntitiesLater().clear();
                 session.getChunkCache().addToCache(packet.getColumn());

@@ -29,10 +29,10 @@ import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 import com.github.steveice10.opennbt.tag.builtin.ListTag;
 import com.github.steveice10.opennbt.tag.builtin.StringTag;
 import com.github.steveice10.opennbt.tag.builtin.Tag;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.translators.ItemRemapper;
 import org.geysermc.connector.network.translators.NbtItemStackTranslator;
 import org.geysermc.connector.network.translators.item.ItemEntry;
-import org.geysermc.connector.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class BookPagesTranslator extends NbtItemStackTranslator {
 
                 CompoundTag pageTag = new CompoundTag("");
                 pageTag.put(new StringTag("photoname", ""));
-                pageTag.put(new StringTag("text", MessageUtils.getBedrockMessage(textTag.getValue())));
+                pageTag.put(new StringTag("text", GeyserEdition.MESSAGE_UTILS.getBedrockMessage(textTag.getValue())));
                 pages.add(pageTag);
             }
 
@@ -74,7 +74,7 @@ public class BookPagesTranslator extends NbtItemStackTranslator {
                 CompoundTag pageTag = (CompoundTag) tag;
 
                 StringTag textTag = pageTag.get("text");
-                pages.add(new StringTag(MessageUtils.getJavaMessage(textTag.getValue())));
+                pages.add(new StringTag(GeyserEdition.MESSAGE_UTILS.getJavaMessage(textTag.getValue())));
             }
 
             itemTag.remove("pages");

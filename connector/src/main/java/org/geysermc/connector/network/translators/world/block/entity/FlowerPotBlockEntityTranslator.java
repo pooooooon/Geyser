@@ -31,10 +31,9 @@ import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.nbt.CompoundTagBuilder;
 import com.nukkitx.nbt.tag.CompoundTag;
 import com.nukkitx.protocol.bedrock.packet.UpdateBlockPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.world.block.BlockStateValues;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
-import org.geysermc.connector.utils.BlockEntityUtils;
 
 public class FlowerPotBlockEntityTranslator implements BedrockOnlyBlockEntity, RequiresBlockState {
 
@@ -45,10 +44,10 @@ public class FlowerPotBlockEntityTranslator implements BedrockOnlyBlockEntity, R
 
     @Override
     public void updateBlock(GeyserSession session, BlockState blockState, Vector3i position) {
-        BlockEntityUtils.updateBlockEntity(session, getTag(blockState, position), position);
+        GeyserEdition.BLOCK_ENTITY_UTILS.updateBlockEntity(session, getTag(blockState, position), position);
         UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
         updateBlockPacket.setDataLayer(0);
-        updateBlockPacket.setRuntimeId(BlockTranslator.getBedrockBlockId(blockState));
+        updateBlockPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState));
         updateBlockPacket.setBlockPosition(position);
         updateBlockPacket.getFlags().add(UpdateBlockPacket.Flag.PRIORITY);
         updateBlockPacket.getFlags().add(UpdateBlockPacket.Flag.NONE);

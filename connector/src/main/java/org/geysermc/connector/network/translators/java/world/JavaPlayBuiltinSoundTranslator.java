@@ -31,10 +31,10 @@ import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.data.SoundEvent;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import com.nukkitx.protocol.bedrock.packet.LevelSoundEventPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.utils.SoundUtils;
 
 @Translator(packet = ServerPlayBuiltinSoundPacket.class)
@@ -44,7 +44,7 @@ public class JavaPlayBuiltinSoundTranslator extends PacketTranslator<ServerPlayB
     public void translate(ServerPlayBuiltinSoundPacket packet, GeyserSession session) {
         String packetSound = packet.getSound().getName();
 
-        SoundUtils.SoundMapping soundMapping = SoundUtils.fromJava(packetSound);
+        SoundUtils.SoundMapping soundMapping = GeyserEdition.SOUND_UTILS.fromJava(packetSound);
         session.getConnector().getLogger().debug("[Builtin] Sound mapping " + packetSound + " -> "
                         + soundMapping + (soundMapping == null ? "[not found]" : "")
                         + " - " + packet.toString());
@@ -61,12 +61,12 @@ public class JavaPlayBuiltinSoundTranslator extends PacketTranslator<ServerPlayB
             return;
         }
         LevelSoundEventPacket soundPacket = new LevelSoundEventPacket();
-        SoundEvent sound = SoundUtils.toSoundEvent(soundMapping.getBedrock());
+        SoundEvent sound = GeyserEdition.SOUND_UTILS.toSoundEvent(soundMapping.getBedrock());
         if (sound == null) {
-            sound = SoundUtils.toSoundEvent(soundMapping.getBedrock());
+            sound = GeyserEdition.SOUND_UTILS.toSoundEvent(soundMapping.getBedrock());
         }
         if (sound == null) {
-            sound = SoundUtils.toSoundEvent(packetSound);
+            sound = GeyserEdition.SOUND_UTILS.toSoundEvent(packetSound);
         }
         if (sound == null) {
             session.getConnector().getLogger().debug("[Builtin] Sound for original " + packetSound + " to mappings " + soundPacket
@@ -83,7 +83,7 @@ public class JavaPlayBuiltinSoundTranslator extends PacketTranslator<ServerPlayB
             // Bedrock has a number for each type of note, then proceeds up the scale by adding to that number
             soundPacket.setExtraData(soundMapping.getExtraData() + (int)(Math.round((Math.log10(packet.getPitch()) / Math.log10(2)) * 12)) + 12);
         } else if (sound == SoundEvent.PLACE && soundMapping.getExtraData() == -1) {
-            soundPacket.setExtraData(BlockTranslator.getBedrockBlockId(BlockTranslator.getJavaBlockState(soundMapping.getIdentifier())));
+            soundPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaBlockState(soundMapping.getIdentifier())));
             soundPacket.setIdentifier(":");
         } else {
             soundPacket.setExtraData(soundMapping.getExtraData());

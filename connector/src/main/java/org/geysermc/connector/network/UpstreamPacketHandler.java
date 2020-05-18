@@ -30,9 +30,8 @@ import com.nukkitx.protocol.bedrock.packet.*;
 import org.geysermc.common.AuthType;
 import org.geysermc.connector.GeyserConfiguration;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Registry;
-import org.geysermc.connector.utils.LoginEncryptionUtils;
 
 public class UpstreamPacketHandler extends LoggingPacketHandler {
 
@@ -41,20 +40,20 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
     }
 
     private boolean translateAndDefault(BedrockPacket packet) {
-        return Registry.BEDROCK.translate(packet.getClass(), packet, session);
+        return GeyserEdition.TRANSLATORS.getBedrockTranslators().translate(packet.getClass(), packet, session);
     }
 
     @Override
     public boolean handle(LoginPacket loginPacket) {
-        if (loginPacket.getProtocolVersion() > GeyserConnector.BEDROCK_PACKET_CODEC.getProtocolVersion()) {
-            session.disconnect("Outdated Geyser proxy! I'm still on " + GeyserConnector.BEDROCK_PACKET_CODEC.getMinecraftVersion());
+        if (loginPacket.getProtocolVersion() > connector.getEdition().getCodec().getProtocolVersion()) {
+            session.disconnect("Outdated Geyser proxy! I'm still on " + connector.getEdition().getCodec().getMinecraftVersion());
             return true;
-        } else if (loginPacket.getProtocolVersion() < GeyserConnector.BEDROCK_PACKET_CODEC.getProtocolVersion()) {
-            session.disconnect("Outdated Bedrock client! Please use " + GeyserConnector.BEDROCK_PACKET_CODEC.getMinecraftVersion());
+        } else if (loginPacket.getProtocolVersion() < connector.getEdition().getCodec().getProtocolVersion()) {
+            session.disconnect("Outdated Bedrock client! Please use " + connector.getEdition().getCodec().getMinecraftVersion());
             return true;
         }
 
-        LoginEncryptionUtils.encryptPlayerConnection(connector, session, loginPacket);
+        GeyserEdition.LOGIN_ENCRYPTION_UTILS.encryptPlayerConnection(connector, session, loginPacket);
 
         PlayStatusPacket playStatus = new PlayStatusPacket();
         playStatus.setStatus(PlayStatusPacket.Status.LOGIN_SUCCESS);
@@ -89,7 +88,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
 
     @Override
     public boolean handle(ModalFormResponsePacket packet) {
-        return LoginEncryptionUtils.authenticateFromForm(session, connector, packet.getFormId(), packet.getFormData());
+        return GeyserEdition.LOGIN_ENCRYPTION_UTILS.authenticateFromForm(session, connector, packet.getFormId(), packet.getFormData());
     }
 
     private boolean couldLoginUserByName(String bedrockUsername) {
@@ -114,7 +113,7 @@ public class UpstreamPacketHandler extends LoggingPacketHandler {
         if (!session.isLoggedIn() && !session.isLoggingIn() && session.getConnector().getAuthType() == AuthType.ONLINE) {
             // TODO it is safer to key authentication on something that won't change (UUID, not username)
             if (!couldLoginUserByName(session.getAuthData().getName())) {
-                LoginEncryptionUtils.showLoginWindow(session);
+                GeyserEdition.LOGIN_ENCRYPTION_UTILS.showLoginWindow(session);
             }
             // else we were able to log the user in
             return true;

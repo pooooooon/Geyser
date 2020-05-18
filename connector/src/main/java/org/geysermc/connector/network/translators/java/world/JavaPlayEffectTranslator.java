@@ -35,10 +35,10 @@ import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import com.nukkitx.protocol.bedrock.packet.LevelSoundEventPacket;
 import com.nukkitx.protocol.bedrock.packet.TextPacket;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.network.translators.effect.Effect;
 import org.geysermc.connector.utils.EffectUtils;
 import org.geysermc.connector.utils.LocaleUtils;
@@ -51,11 +51,12 @@ public class JavaPlayEffectTranslator extends PacketTranslator<ServerPlayEffectP
 
     @Override
     public void translate(ServerPlayEffectPacket packet, GeyserSession session) {
+        EffectUtils effectUtils = GeyserEdition.EFFECT_UTILS;
         LevelEventPacket effect = new LevelEventPacket();
         // Some things here are particles, others are not
         if (packet.getEffect() instanceof ParticleEffect) {
             ParticleEffect particleEffect = (ParticleEffect) packet.getEffect();
-            Effect geyserEffect = EffectUtils.EFFECTS.get(particleEffect.name());
+            Effect geyserEffect = effectUtils.getEffects().get(particleEffect.name());
             if (geyserEffect != null) {
                 String name = geyserEffect.getBedrockName();
                 effect.setType(LevelEventType.valueOf(name));
@@ -71,7 +72,7 @@ public class JavaPlayEffectTranslator extends PacketTranslator<ServerPlayEffectP
                     case BREAK_BLOCK:
                         effect.setType(LevelEventType.DESTROY);
                         BreakBlockEffectData breakBlockEffectData = (BreakBlockEffectData) packet.getData();
-                        effect.setData(BlockTranslator.getBedrockBlockId(breakBlockEffectData.getBlockState()));
+                        effect.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(breakBlockEffectData.getBlockState()));
                         break;
                     case EXPLOSION:
                         effect.setType(LevelEventType.PARTICLE_LARGE_EXPLOSION);
@@ -119,7 +120,7 @@ public class JavaPlayEffectTranslator extends PacketTranslator<ServerPlayEffectP
             session.sendUpstreamPacket(effect);
         } else if (packet.getEffect() instanceof SoundEffect) {
             SoundEffect soundEffect = (SoundEffect) packet.getEffect();
-            Effect geyserEffect = EffectUtils.EFFECTS.get(soundEffect.name());
+            Effect geyserEffect = effectUtils.getEffects().get(soundEffect.name());
             if (geyserEffect != null) {
                 // Some events are LevelEventTypes, some are SoundEvents.
                 if (geyserEffect.getType().equals("soundLevel")) {
@@ -129,8 +130,8 @@ public class JavaPlayEffectTranslator extends PacketTranslator<ServerPlayEffectP
                     // Separate case since each RecordEffectData in Java is an individual track in Bedrock
                     if (geyserEffect.getJavaName().equals("RECORD")) {
                         RecordEffectData recordEffectData = (RecordEffectData) packet.getData();
-                        soundEvent.setSound(EffectUtils.RECORDS.get(recordEffectData.getRecordId()));
-                        if (EffectUtils.RECORDS.get(recordEffectData.getRecordId()) != SoundEvent.STOP_RECORD) {
+                        soundEvent.setSound(effectUtils.getRecords().get(recordEffectData.getRecordId()));
+                        if (effectUtils.getRecords().get(recordEffectData.getRecordId()) != SoundEvent.STOP_RECORD) {
                             // Send text packet as it seems to be handled in Java Edition client-side.
                             TextPacket textPacket = new TextPacket();
                             textPacket.setType(TextPacket.Type.JUKEBOX_POPUP);
@@ -140,7 +141,7 @@ public class JavaPlayEffectTranslator extends PacketTranslator<ServerPlayEffectP
                             textPacket.setSourceName(null);
                             textPacket.setMessage("record.nowPlaying");
                             List<String> params = new ArrayList<>();
-                            String recordString = "%item." + EffectUtils.RECORDS.get(recordEffectData.getRecordId()).name().toLowerCase() + ".desc";
+                            String recordString = "%item." + effectUtils.getRecords().get(recordEffectData.getRecordId()).name().toLowerCase() + ".desc";
                             params.add(LocaleUtils.getLocaleString(recordString, session.getClientData().getLanguageCode()));
                             textPacket.setParameters(params);
                             session.sendUpstreamPacket(textPacket);

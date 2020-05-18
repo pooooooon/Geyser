@@ -30,8 +30,8 @@ import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
 import com.github.steveice10.opennbt.tag.builtin.ListTag;
 import com.nukkitx.nbt.CompoundTagBuilder;
 import com.nukkitx.nbt.tag.Tag;
+import org.geysermc.connector.GeyserEdition;
 
-import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.item.ItemEntry;
 
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class CampfireBlockEntityTranslator extends BlockEntityTranslator {
     }
 
     protected com.nukkitx.nbt.tag.CompoundTag getItem(CompoundTag tag) {
-        ItemEntry entry = Translators.getItemTranslator().getItemEntry((String) tag.get("id").getValue());
+        ItemEntry entry = GeyserEdition.TRANSLATORS.getItemTranslator().getItemEntry((String) tag.get("id").getValue());
         CompoundTagBuilder tagBuilder = CompoundTagBuilder.builder()
                 .shortTag("id", (short) entry.getBedrockId())
                 .byteTag("Count", (byte) tag.get("Count").getValue())

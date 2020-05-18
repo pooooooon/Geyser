@@ -27,11 +27,21 @@ package org.geysermc.connector.utils;
 
 import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.protocol.bedrock.packet.*;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.network.session.GeyserSession;
 
+@Getter
 public class DimensionUtils {
-    public static void switchDimension(GeyserSession session, int javaDimension) {
+
+    private GeyserEdition edition;
+
+    public DimensionUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    public void switchDimension(GeyserSession session, int javaDimension) {
         int bedrockDimension = javaToBedrock(javaDimension);
         Entity player = session.getPlayerEntity();
         if (bedrockDimension == player.getDimension())
@@ -40,7 +50,7 @@ public class DimensionUtils {
         session.getEntityCache().removeAllEntities();
         session.getItemFrameCache().clear();
         if (session.getPendingDimSwitches().getAndIncrement() > 0) {
-            ChunkUtils.sendEmptyChunks(session, player.getPosition().toInt(), 3, true);
+            GeyserEdition.CHUNK_UTILS.sendEmptyChunks(session, player.getPosition().toInt(), 3, true);
         }
 
         Vector3i pos = Vector3i.from(0, Short.MAX_VALUE, 0);
@@ -68,7 +78,7 @@ public class DimensionUtils {
      * @param javaDimension Dimension ID to convert
      * @return Converted Bedrock edition dimension ID
      */
-    public static int javaToBedrock(int javaDimension) {
+    public int javaToBedrock(int javaDimension) {
         switch (javaDimension) {
             case -1:
                 return 1;

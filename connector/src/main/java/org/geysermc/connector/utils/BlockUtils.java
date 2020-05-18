@@ -27,14 +27,22 @@ package org.geysermc.connector.utils;
 
 import com.github.steveice10.mc.protocol.data.game.entity.Effect;
 import com.github.steveice10.opennbt.tag.builtin.CompoundTag;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.PlayerEntity;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.network.translators.item.ItemEntry;
 import org.geysermc.connector.network.translators.item.ToolItemEntry;
 
+@Getter
 public class BlockUtils {
 
-    private static boolean correctTool(String blockToolType, String itemToolType) {
+    private GeyserEdition edition;
+
+    public BlockUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
+
+    private boolean correctTool(String blockToolType, String itemToolType) {
         return (blockToolType.equals("sword") && itemToolType.equals("sword")) ||
                 (blockToolType.equals("shovel") && itemToolType.equals("shovel")) ||
                 (blockToolType.equals("pickaxe") && itemToolType.equals("pickaxe")) ||
@@ -42,7 +50,7 @@ public class BlockUtils {
                 (blockToolType.equals("shears") && itemToolType.equals("shears"));
     }
 
-    private static double toolBreakTimeBonus(String toolType, String toolTier, boolean isWoolBlock) {
+    private double toolBreakTimeBonus(String toolType, String toolTier, boolean isWoolBlock) {
         if (toolType.equals("shears")) return isWoolBlock ? 5.0 : 15.0;
         if (toolType.equals("")) return 1.0;
         switch (toolTier) {
@@ -62,8 +70,8 @@ public class BlockUtils {
     }
 
     //http://minecraft.gamepedia.com/Breaking
-    private static double calculateBreakTime(double blockHardness, String toolTier, boolean canHarvestWithHand, boolean correctTool,
-                                             String toolType, boolean isWoolBlock, boolean isCobweb, int toolEfficiencyLevel, int hasteLevel, int miningFatigueLevel
+    private double calculateBreakTime(double blockHardness, String toolTier, boolean canHarvestWithHand, boolean correctTool,
+                                      String toolType, boolean isWoolBlock, boolean isCobweb, int toolEfficiencyLevel, int hasteLevel, int miningFatigueLevel
             /*boolean insideOfWaterWithoutAquaAffinity, boolean outOfWaterButNotOnGround*/) {
         double baseTime = ((correctTool || canHarvestWithHand) ? 1.5 : 5.0) * blockHardness;
         double speed = 1.0 / baseTime;
@@ -99,11 +107,11 @@ public class BlockUtils {
         return 1.0 / speed;
     }
 
-    public static double getBreakTime(double blockHardness, int blockId, ItemEntry item, CompoundTag nbtData, PlayerEntity player) {
-        boolean isWoolBlock = BlockTranslator.JAVA_RUNTIME_WOOL_IDS.contains(blockId);
-        boolean isCobweb = blockId == BlockTranslator.JAVA_RUNTIME_COBWEB_ID;
-        String blockToolType = BlockTranslator.JAVA_RUNTIME_ID_TO_TOOL_TYPE.getOrDefault(blockId, "");
-        boolean canHarvestWithHand = BlockTranslator.JAVA_RUNTIME_ID_TO_CAN_HARVEST_WITH_HAND.get(blockId);
+    public double getBreakTime(double blockHardness, int blockId, ItemEntry item, CompoundTag nbtData, PlayerEntity player) {
+        boolean isWoolBlock = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeWoolIds().contains(blockId);
+        boolean isCobweb = blockId == GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeCobwebId();
+        String blockToolType = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToToolType().getOrDefault(blockId, "");
+        boolean canHarvestWithHand = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToCanHarvestWithHand().get(blockId);
         String toolType = "";
         String toolTier = "";
         boolean correctTool = false;
@@ -113,7 +121,7 @@ public class BlockUtils {
             toolTier = toolItem.getToolTier();
             correctTool = correctTool(blockToolType, toolType);
         }
-        int toolEfficiencyLevel = ItemUtils.getEnchantmentLevel(nbtData, "minecraft:efficiency");
+        int toolEfficiencyLevel = GeyserEdition.ITEM_UTILS.getEnchantmentLevel(nbtData, "minecraft:efficiency");
         int hasteLevel = 0;
         int miningFatigueLevel = 0;
 

@@ -28,9 +28,18 @@ package org.geysermc.connector.utils;
 import com.github.steveice10.mc.protocol.data.game.entity.Effect;
 import com.github.steveice10.mc.protocol.data.game.entity.type.MobType;
 import com.github.steveice10.mc.protocol.data.game.entity.type.object.ObjectType;
+import lombok.Getter;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.type.EntityType;
 
+@Getter
 public class EntityUtils {
+
+    private GeyserEdition edition;
+
+    public EntityUtils(GeyserEdition edition) {
+        this.edition = edition;
+    }
 
     /**
      * Convert Java edition effect IDs to Bedrock edition
@@ -38,7 +47,7 @@ public class EntityUtils {
      * @param effect Effect to convert
      * @return The numeric ID for the Bedrock edition effect
      */
-    public static int toBedrockEffectId(Effect effect) {
+    public int toBedrockEffectId(Effect effect) {
         switch (effect) {
             case GLOWING:
             case LUCK:
@@ -64,7 +73,7 @@ public class EntityUtils {
      * @param type The MobType to convert
      * @return Converted EntityType
      */
-    public static EntityType toBedrockEntity(MobType type) {
+    public EntityType toBedrockEntity(MobType type) {
         try {
             return EntityType.valueOf(type.name());
         } catch (IllegalArgumentException ex) {
@@ -78,7 +87,7 @@ public class EntityUtils {
      * @param type The ObjectType to convert
      * @return Converted EntityType
      */
-    public static EntityType toBedrockEntity(ObjectType type) {
+    public EntityType toBedrockEntity(ObjectType type) {
         try {
             return EntityType.valueOf(type.name());
         } catch (IllegalArgumentException ex) {

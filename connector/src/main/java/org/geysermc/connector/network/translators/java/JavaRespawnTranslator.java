@@ -28,12 +28,12 @@ package org.geysermc.connector.network.translators.java;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.LevelEventType;
 import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.entity.attribute.AttributeType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.DimensionUtils;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacket;
 import com.nukkitx.protocol.bedrock.packet.SetPlayerGameTypePacket;
@@ -66,13 +66,13 @@ public class JavaRespawnTranslator extends PacketTranslator<ServerRespawnPacket>
         stopRainPacket.setPosition(Vector3f.ZERO);
         session.sendUpstreamPacket(stopRainPacket);
 
-        if (entity.getDimension() != DimensionUtils.javaToBedrock(packet.getDimension())) {
-            DimensionUtils.switchDimension(session, packet.getDimension());
+        if (entity.getDimension() != GeyserEdition.DIMENSION_UTILS.javaToBedrock(packet.getDimension())) {
+            GeyserEdition.DIMENSION_UTILS.switchDimension(session, packet.getDimension());
         } else {
             if (session.isManyDimPackets()) { //reloading world
                 int fakeDim = entity.getDimension() == 0 ? -1 : 0;
-                DimensionUtils.switchDimension(session, fakeDim);
-                DimensionUtils.switchDimension(session, packet.getDimension());
+                GeyserEdition.DIMENSION_UTILS.switchDimension(session, fakeDim);
+                GeyserEdition.DIMENSION_UTILS.switchDimension(session, packet.getDimension());
             } else {
                 // Handled in JavaPlayerPositionRotationTranslator
                 session.setSpawned(false);

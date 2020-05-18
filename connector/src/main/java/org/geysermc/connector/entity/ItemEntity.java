@@ -29,9 +29,9 @@ import com.github.steveice10.mc.protocol.data.game.entity.metadata.EntityMetadat
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.packet.AddItemEntityPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.Translators;
 
 public class ItemEntity extends Entity {
 
@@ -49,7 +49,7 @@ public class ItemEntity extends Entity {
             itemPacket.setUniqueEntityId(geyserId);
             itemPacket.setFromFishing(false);
             itemPacket.getMetadata().putAll(metadata);
-            itemPacket.setItemInHand(Translators.getItemTranslator().translateToBedrock(session, (ItemStack) entityMetadata.getValue()));
+            itemPacket.setItemInHand(GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, (ItemStack) entityMetadata.getValue()));
             session.sendUpstreamPacket(itemPacket);
         }
 

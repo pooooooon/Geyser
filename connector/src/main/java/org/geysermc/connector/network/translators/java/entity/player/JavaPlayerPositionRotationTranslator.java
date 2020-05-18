@@ -33,13 +33,13 @@ import com.nukkitx.protocol.bedrock.packet.EntityEventPacket;
 import com.nukkitx.protocol.bedrock.packet.MovePlayerPacket;
 import com.nukkitx.protocol.bedrock.packet.RespawnPacket;
 import com.nukkitx.protocol.bedrock.packet.SetEntityDataPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.PlayerEntity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.session.cache.TeleportCache;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.ChunkUtils;
 
 @Translator(packet = ServerPlayerPositionRotationPacket.class)
 public class JavaPlayerPositionRotationTranslator extends PacketTranslator<ServerPlayerPositionRotationPacket> {
@@ -87,7 +87,7 @@ public class JavaPlayerPositionRotationTranslator extends PacketTranslator<Serve
             ClientTeleportConfirmPacket teleportConfirmPacket = new ClientTeleportConfirmPacket(packet.getTeleportId());
             session.sendDownstreamPacket(teleportConfirmPacket);
 
-            ChunkUtils.updateChunkPosition(session, pos.toInt());
+            GeyserEdition.CHUNK_UTILS.updateChunkPosition(session, pos.toInt());
 
             session.getConnector().getLogger().info("Spawned player at " + packet.getX() + " " + packet.getY() + " " + packet.getZ());
             return;

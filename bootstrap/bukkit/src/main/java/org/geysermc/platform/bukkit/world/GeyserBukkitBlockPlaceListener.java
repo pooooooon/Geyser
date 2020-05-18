@@ -35,8 +35,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.network.session.GeyserSession;
-import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 
 @AllArgsConstructor
 public class GeyserBukkitBlockPlaceListener implements Listener {
@@ -55,12 +55,12 @@ public class GeyserBukkitBlockPlaceListener implements Listener {
                 placeBlockSoundPacket.setBabySound(false);
                 String javaBlockId;
                 if (isLegacy) {
-                    javaBlockId = BlockTranslator.getJavaIdBlockMap().inverse().get(GeyserBukkitWorldManager.getLegacyBlock(session,
+                    javaBlockId = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(GeyserBukkitWorldManager.getLegacyBlock(session,
                             event.getBlockPlaced().getX(), event.getBlockPlaced().getY(), event.getBlockPlaced().getZ(), isViaVersion));
                 } else {
                     javaBlockId = event.getBlockPlaced().getBlockData().getAsString();
                 }
-                placeBlockSoundPacket.setExtraData(BlockTranslator.getBedrockBlockId(BlockTranslator.getJavaIdBlockMap().get(javaBlockId)));
+                placeBlockSoundPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().get(javaBlockId)));
                 placeBlockSoundPacket.setIdentifier(":");
                 session.sendUpstreamPacket(placeBlockSoundPacket);
                 session.setLastBlockPlacePosition(null);

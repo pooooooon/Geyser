@@ -31,11 +31,11 @@ import com.nukkitx.protocol.bedrock.data.ContainerType;
 import com.nukkitx.protocol.bedrock.data.InventoryActionData;
 import com.nukkitx.protocol.bedrock.data.InventorySource;
 import com.nukkitx.protocol.bedrock.packet.ContainerOpenPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.inventory.updater.CursorInventoryUpdater;
 import org.geysermc.connector.network.translators.inventory.updater.InventoryUpdater;
-import org.geysermc.connector.utils.InventoryUtils;
 
 import java.util.List;
 
@@ -108,7 +108,7 @@ public class CraftingInventoryTranslator extends BaseInventoryTranslator {
             for (InventoryActionData action : actions) {
                 if (action.getSource().getType() == InventorySource.Type.CREATIVE) {
                     updateInventory(session, inventory);
-                    InventoryUtils.updateCursor(session);
+                    GeyserEdition.INVENTORY_UTILS.updateCursor(session);
                     return;
                 }
             }

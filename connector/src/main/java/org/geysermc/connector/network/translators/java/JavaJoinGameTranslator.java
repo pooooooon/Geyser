@@ -29,11 +29,11 @@ import com.github.steveice10.mc.protocol.data.game.entity.player.Hand;
 import com.github.steveice10.mc.protocol.data.game.setting.ChatVisibility;
 import com.github.steveice10.mc.protocol.data.game.setting.SkinPart;
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientSettingsPacket;
+import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.entity.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
-import org.geysermc.connector.utils.DimensionUtils;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerJoinGamePacket;
 import com.nukkitx.protocol.bedrock.data.PlayerPermission;
@@ -80,8 +80,8 @@ public class JavaJoinGameTranslator extends PacketTranslator<ServerJoinGamePacke
         ClientSettingsPacket clientSettingsPacket = new ClientSettingsPacket(locale, (byte) session.getRenderDistance(), ChatVisibility.FULL, true, skinParts, Hand.MAIN_HAND);
         session.sendDownstreamPacket(clientSettingsPacket);
 
-        if (DimensionUtils.javaToBedrock(packet.getDimension()) != entity.getDimension()) {
-            DimensionUtils.switchDimension(session, packet.getDimension());
+        if (GeyserEdition.DIMENSION_UTILS.javaToBedrock(packet.getDimension()) != entity.getDimension()) {
+            GeyserEdition.DIMENSION_UTILS.switchDimension(session, packet.getDimension());
         }
     }
 }
