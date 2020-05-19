@@ -27,7 +27,6 @@ package org.geysermc.platform.standalone;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
 import org.geysermc.connector.GeyserConfiguration;
 
@@ -86,13 +85,6 @@ public class GeyserStandaloneConfiguration implements GeyserConfiguration {
 
         private String edition;
         private String version;
-
-        private EducationConfiguration education;
-
-        @Getter
-        public static class EducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
-            private String token;
-        }
     }
 
     @Getter

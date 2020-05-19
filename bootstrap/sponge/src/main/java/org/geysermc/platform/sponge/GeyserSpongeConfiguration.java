@@ -26,15 +26,17 @@
 package org.geysermc.platform.sponge;
 
 import lombok.AllArgsConstructor;
-
 import ninja.leaping.configurate.ConfigurationNode;
-
 import org.geysermc.connector.GeyserConfiguration;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GeyserSpongeConfiguration implements GeyserConfiguration {
 
@@ -128,11 +130,9 @@ public class GeyserSpongeConfiguration implements GeyserConfiguration {
     public class SpongeBedrockConfiguration implements IBedrockConfiguration {
 
         private ConfigurationNode node;
-        private SpongeEducationConfiguration education;
 
         public SpongeBedrockConfiguration(ConfigurationNode node) {
             this.node = node;
-            education = new SpongeEducationConfiguration(node.getNode("education"));
         }
 
         @Override
@@ -163,22 +163,6 @@ public class GeyserSpongeConfiguration implements GeyserConfiguration {
         @Override
         public String getVersion() {
             return node.getNode("version").getString("latest");
-        }
-
-        @Override
-        public IEducationConfiguration getEducation() {
-            return education;
-        }
-
-        @AllArgsConstructor
-        public class SpongeEducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
-
-            private ConfigurationNode node;
-
-            @Override
-            public String getToken() {
-                return node.getNode("token").getString(null);
-            }
         }
     }
 

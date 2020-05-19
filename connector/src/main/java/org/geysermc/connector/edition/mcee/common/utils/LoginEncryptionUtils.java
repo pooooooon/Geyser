@@ -47,11 +47,11 @@ import java.util.Base64;
 
 public class LoginEncryptionUtils extends org.geysermc.connector.utils.LoginEncryptionUtils {
 
-    private String signedToken;
+    private final TokenManager manager;
 
-    public LoginEncryptionUtils(GeyserEdition edition, String signedToken) {
+    public LoginEncryptionUtils(GeyserEdition edition, TokenManager manager) {
         super(edition);
-        this.signedToken = signedToken;
+        this.manager = manager;
     }
 
     protected JWSObject createHandshakeJwt(KeyPair serverKeyPair, byte[] token, String signedToken) throws JOSEException {
@@ -79,6 +79,17 @@ public class LoginEncryptionUtils extends org.geysermc.connector.utils.LoginEncr
         byte[] token = EncryptionUtils.generateRandomToken();
         SecretKey encryptionKey = EncryptionUtils.getSecretKey(serverKeyPair.getPrivate(), key, token);
         session.getUpstream().getSession().enableEncryption(encryptionKey);
+
+        // Get signedToken for connecting client
+        String signedToken = null;
+        if (session.getClientData().getTenantId() != null) {
+            if (manager.getTokenMap().containsKey(session.getClientData().getTenantId())) {
+                // This may block if it needs to be refreshed
+                signedToken = manager.getTokenMap().get(session.getClientData().getTenantId()).getSignedToken();
+            } else {
+                session.getConnector().getLogger().warning("Unknown Tenant tried to connect: " + session.getClientData().getTenantId());
+            }
+        }
 
         ServerToClientHandshakePacket packet = new ServerToClientHandshakePacket();
         packet.setJwt(createHandshakeJwt(serverKeyPair, token, signedToken).serialize());

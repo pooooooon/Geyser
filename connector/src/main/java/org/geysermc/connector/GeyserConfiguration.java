@@ -69,11 +69,6 @@ public interface GeyserConfiguration {
 
         String getVersion();
 
-        IEducationConfiguration getEducation();
-
-        interface IEducationConfiguration {
-            String getToken();
-        }
     }
 
     interface IRemoteConfiguration {

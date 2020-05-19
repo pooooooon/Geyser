@@ -119,6 +119,7 @@ import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.edition.mcee.common.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.edition.mcee.common.utils.LoginEncryptionUtils;
 import org.geysermc.connector.edition.mcee.common.utils.SkinUtils;
+import org.geysermc.connector.edition.mcee.common.utils.TokenManager;
 import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.bedrock.BedrockActionTranslator;
 import org.geysermc.connector.network.translators.bedrock.BedrockAnimateTranslator;
@@ -257,10 +258,13 @@ import org.geysermc.connector.utils.Toolbox;
 @Getter
 public class Edition extends GeyserEdition {
 
-    private final String signedToken;
+    private final TokenManager tokenManager;
 
     public Edition(GeyserConnector connector) {
         super(connector, "education", "1.12.60");
+
+        // Token Manager
+        tokenManager = new TokenManager(this);
 
         TOOLBOX = new Toolbox(this);
         TRANSLATORS = new Translators(this);
@@ -273,14 +277,13 @@ public class Edition extends GeyserEdition {
         DIMENSION_UTILS = new DimensionUtils(this);
         ENTITY_UTILS = new EntityUtils(this);
         ITEM_UTILS = new ItemUtils(this);
-        LOGIN_ENCRYPTION_UTILS = new LoginEncryptionUtils(this,connector.getConfig().getBedrock().getEducation().getToken());
+        LOGIN_ENCRYPTION_UTILS = new LoginEncryptionUtils(this, tokenManager);
         MESSAGE_UTILS = new MessageUtils(this);
         SKIN_PROVIDER = new SkinProvider(this);
         SKIN_UTILS = new SkinUtils(this);
 
         codec = Bedrock_v363.V363_CODEC;
         pongEdition = "MCEE";
-        signedToken = connector.getConfig().getBedrock().getEducation().getToken();
 
         // Register Block Entity Translators
         TRANSLATORS

@@ -22,17 +22,6 @@ bedrock:
   # Version - Version number or latest for latest
   version: latest
 
-  # Settings for education edition
-  education:
-    # Education edition requires a signed token. You can retrieve this by running an edu-friendly ProxyPass
-    # between two MCEE devices and copying the 'jwt' from the ServerToClientHandshakePacket (everything after jwt=
-    # and before the closing brace into the 'encoded' box at https://jwt.io.  From the decoded side copy the
-    # value of "signedToken" into this config entry. It should be in the format UUID|UUID|DATESTAMP|SIGNATURE.
-    # The token only allows clients in the same Tenant to connect. Ignore this when not using Education Mode.
-    # NOTE this token will expire after 2 weeks so this will be replaced by proper authentication in the
-    # near future.
-    token: dead...beef
-
 remote:
   # The IP address of the remote (Java Edition) server
   address: 127.0.0.1

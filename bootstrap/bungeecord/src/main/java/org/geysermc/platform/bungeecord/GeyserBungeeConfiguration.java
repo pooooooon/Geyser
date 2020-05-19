@@ -132,12 +132,6 @@ public class GeyserBungeeConfiguration implements GeyserConfiguration {
 
     public class BungeeBedrockConfiguration implements IBedrockConfiguration {
 
-        private BungeeEducationConfiguration education;
-
-        public BungeeBedrockConfiguration() {
-            education = new BungeeEducationConfiguration();
-        }
-
         @Override
         public String getAddress() {
             return config.getString("bedrock.address", "0.0.0.0");
@@ -166,19 +160,6 @@ public class GeyserBungeeConfiguration implements GeyserConfiguration {
         @Override
         public String getVersion() {
             return config.getString("bedrock.version", "lastest");
-        }
-
-
-        @Override
-        public IEducationConfiguration getEducation() {
-            return education;
-        }
-
-        public class BungeeEducationConfiguration implements IBedrockConfiguration.IEducationConfiguration {
-            @Override
-            public String getToken() {
-                return config.getString("bedrock.education.token");
-            }
         }
     }
 
