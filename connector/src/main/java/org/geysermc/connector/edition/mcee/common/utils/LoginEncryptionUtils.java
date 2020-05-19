@@ -64,8 +64,6 @@ public class LoginEncryptionUtils extends org.geysermc.connector.utils.LoginEncr
             claimsBuilder.claim("signedToken", signedToken);
         }
 
-        System.err.println("token: " + signedToken);
-
         SignedJWT jwt = new SignedJWT((new com.nimbusds.jose.JWSHeader.Builder(JWSAlgorithm.ES384)).x509CertURL(x5u).build(),
                 claimsBuilder.build());
         EncryptionUtils.signJwt(jwt, (ECPrivateKey)serverKeyPair.getPrivate());
