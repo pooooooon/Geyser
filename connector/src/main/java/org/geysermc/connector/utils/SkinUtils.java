@@ -109,6 +109,48 @@ public class SkinUtils {
         return entry;
     }
 
+    @AllArgsConstructor
+    @Getter
+    public static class GameProfileData {
+        private String skinUrl;
+        private String capeUrl;
+        private boolean alex;
+
+        /**
+         * Generate the GameProfileData from the given GameProfile
+         *
+         * @param profile GameProfile to build the GameProfileData from
+         * @return The built GameProfileData
+         */
+        public static GameProfileData from(GameProfile profile) {
+            try {
+                GameProfile.Property skinProperty = profile.getProperty("textures");
+
+                JsonNode skinObject = new ObjectMapper().readTree(new String(Base64.getDecoder().decode(skinProperty.getValue()), StandardCharsets.UTF_8));
+                JsonNode textures = skinObject.get("textures");
+
+                JsonNode skinTexture = textures.get("SKIN");
+                String skinUrl = skinTexture.get("url").asText();
+
+                boolean isAlex = skinTexture.has("metadata");
+
+                String capeUrl = null;
+                if (textures.has("CAPE")) {
+                    JsonNode capeTexture = textures.get("CAPE");
+                    capeUrl = capeTexture.get("url").asText();
+                }
+
+                return new GameProfileData(skinUrl, capeUrl, isAlex);
+            } catch (Exception exception) {
+                if (GeyserConnector.getInstance().getAuthType() != AuthType.OFFLINE) {
+                    GeyserConnector.getInstance().getLogger().debug("Got invalid texture data for " + profile.getName() + " " + exception.getMessage());
+                }
+                // return default skin with default cape when texture data is invalid
+                return new GameProfileData(GeyserEdition.SKIN_PROVIDER.getEmptySkin().getTextureUrl(), GeyserEdition.SKIN_PROVIDER.getEmptyCape().getTextureUrl(), false);
+            }
+        }
+    }
+
     public void requestAndHandleSkinAndCape(PlayerEntity entity, GeyserSession session,
                                             Consumer<SkinProvider.SkinAndCape> skinAndCapeConsumer) {
         GeyserConnector.getInstance().getGeneralThreadPool().execute(() -> {
@@ -180,20 +222,11 @@ public class SkinUtils {
         GeyserConnector.getInstance().getLogger().info("Registering bedrock skin for " + playerEntity.getUsername() + " (" + playerEntity.getUuid() + ")");
 
         try {
-            byte[] skinBytes = Base64.getDecoder().decode(clientData.getSkinData().getBytes("UTF-8"));
+            byte[] skinBytes = Base64.getDecoder().decode(clientData.getSkinData().getBytes(StandardCharsets.UTF_8));
             byte[] capeBytes = clientData.getCapeData();
 
-            byte[] geometryNameBytes;
-            byte[] geometryBytes;
-
-            if (clientData.getGeometryName() != null) {
-                geometryNameBytes = Base64.getDecoder().decode(clientData.getGeometryName().getBytes("UTF-8"));
-                geometryBytes = Base64.getDecoder().decode(clientData.getGeometryData().getBytes("UTF-8"));
-            } else {
-                // Legacy Skin Geometry
-                geometryNameBytes = clientData.getLegacyGeometryName().getBytes();
-                geometryBytes = Base64.getDecoder().decode(clientData.getLegacyGeometryData().getBytes("UTF-8"));
-            }
+            byte[] geometryNameBytes = Base64.getDecoder().decode(clientData.getGeometryName().getBytes(StandardCharsets.UTF_8));
+            byte[] geometryBytes = Base64.getDecoder().decode(clientData.getGeometryData().getBytes(StandardCharsets.UTF_8));
 
             if (skinBytes.length <= (128 * 128 * 4) && !clientData.isPersonaSkin()) {
                 GeyserEdition.SKIN_PROVIDER.storeBedrockSkin(playerEntity.getUuid(), data.getSkinUrl(), skinBytes);
@@ -219,48 +252,5 @@ public class SkinUtils {
      */
     private String getLegacySkinGeometry(String geometryName) {
         return "{\"geometry\" :{\"default\" :\"" + geometryName + "\"}}";
-    }
-
-    @AllArgsConstructor
-    @Getter
-    public static class GameProfileData {
-        private String skinUrl;
-        private String capeUrl;
-        private boolean alex;
-
-        /**
-         * Generate the GameProfileData from the given GameProfile
-         *
-         * @param profile GameProfile to build the GameProfileData from
-         * @return The built GameProfileData
-         */
-        public static GameProfileData from(GameProfile profile) {
-            try {
-                GameProfile.Property skinProperty = profile.getProperty("textures");
-
-                JsonNode skinObject = new ObjectMapper().readTree(new String(Base64.getDecoder().decode(skinProperty.getValue()), StandardCharsets.UTF_8));
-                JsonNode textures = skinObject.get("textures");
-
-                JsonNode skinTexture = textures.get("SKIN");
-                String skinUrl = skinTexture.get("url").asText();
-
-                boolean isAlex = skinTexture.has("metadata");
-
-                String capeUrl = null;
-                if (textures.has("CAPE")) {
-                    JsonNode capeTexture = textures.get("CAPE");
-                    capeUrl = capeTexture.get("url").asText();
-                }
-
-                return new GameProfileData(skinUrl, capeUrl, isAlex);
-            } catch (Exception exception) {
-                if (GeyserConnector.getInstance().getAuthType() != AuthType.OFFLINE) {
-                    GeyserConnector.getInstance().getLogger().debug("Got invalid texture data for " + profile.getName() + " " + exception.getMessage());
-                }
-                // return default skin with default cape when texture data is invalid
-                GeyserEdition edition = GeyserConnector.getInstance().getEdition();
-                return new GameProfileData(GeyserEdition.SKIN_PROVIDER.getEmptySkin().getTextureUrl(), GeyserEdition.SKIN_PROVIDER.getEmptyCape().getTextureUrl(), false);
-            }
-        }
     }
 }
