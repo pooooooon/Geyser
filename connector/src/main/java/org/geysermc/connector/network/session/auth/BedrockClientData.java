@@ -83,6 +83,9 @@ public class BedrockClientData {
     @JsonProperty(value = "ThirdPartyNameOnly")
     private boolean thirdPartyNameOnly;
 
+    @JsonProperty(value = "TenantId")
+    private String tenantId;
+
     public enum UIProfile {
         @JsonEnumDefaultValue
         CLASSIC,

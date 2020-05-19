@@ -119,6 +119,7 @@ import org.geysermc.connector.GeyserEdition;
 import org.geysermc.connector.edition.mcee.common.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.edition.mcee.common.utils.LoginEncryptionUtils;
 import org.geysermc.connector.edition.mcee.common.utils.SkinUtils;
+import org.geysermc.connector.edition.mcee.common.utils.TokenManager;
 import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.bedrock.BedrockActionTranslator;
 import org.geysermc.connector.network.translators.bedrock.BedrockAnimateTranslator;
@@ -257,6 +258,7 @@ import org.geysermc.connector.utils.Toolbox;
 @Getter
 public class Edition extends GeyserEdition {
 
+    private final TokenManager tokenManager;
     private final String signedToken;
 
     public Edition(GeyserConnector connector) {
@@ -465,5 +467,8 @@ public class Edition extends GeyserEdition {
         TRANSLATORS
                 .registerSoundInteractionHandler(new MilkCowSoundInteractionHandler());
 
+
+        // Token Manager
+        tokenManager = new TokenManager(this);
     }
 }
