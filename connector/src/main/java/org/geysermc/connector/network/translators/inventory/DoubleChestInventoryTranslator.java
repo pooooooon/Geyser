@@ -40,13 +40,10 @@ import org.geysermc.connector.network.translators.inventory.updater.ChestInvento
 import org.geysermc.connector.network.translators.inventory.updater.InventoryUpdater;
 
 public class DoubleChestInventoryTranslator extends BaseInventoryTranslator {
-    private final int blockId;
     private final InventoryUpdater updater;
 
     public DoubleChestInventoryTranslator(int size) {
         super(size);
-        BlockState javaBlockState = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaBlockState("minecraft:chest[facing=north,type=single,waterlogged=false]");
-        this.blockId = GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(javaBlockState);
         this.updater = new ChestInventoryUpdater(54);
     }
 
@@ -54,6 +51,10 @@ public class DoubleChestInventoryTranslator extends BaseInventoryTranslator {
     public void prepareInventory(GeyserSession session, Inventory inventory) {
         Vector3i position = session.getPlayerEntity().getPosition().toInt().add(Vector3i.UP);
         Vector3i pairPosition = position.add(Vector3i.UNIT_X);
+
+        int blockId = GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(
+                GeyserEdition.BLOCK_TRANSLATOR.getJavaBlockState("minecraft:chest[facing=north,type=single,waterlogged=false]")
+        );
 
         UpdateBlockPacket blockPacket = new UpdateBlockPacket();
         blockPacket.setDataLayer(0);
@@ -116,7 +117,7 @@ public class DoubleChestInventoryTranslator extends BaseInventoryTranslator {
         UpdateBlockPacket blockPacket = new UpdateBlockPacket();
         blockPacket.setDataLayer(0);
         blockPacket.setBlockPosition(holderPos);
-        blockPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(realBlock));
+        blockPacket.setRuntimeId(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(realBlock));
         session.sendUpstreamPacket(blockPacket);
 
         holderPos = holderPos.add(Vector3i.UNIT_X);
@@ -125,7 +126,7 @@ public class DoubleChestInventoryTranslator extends BaseInventoryTranslator {
         blockPacket = new UpdateBlockPacket();
         blockPacket.setDataLayer(0);
         blockPacket.setBlockPosition(holderPos);
-        blockPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(realBlock));
+        blockPacket.setRuntimeId(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(realBlock));
         session.sendUpstreamPacket(blockPacket);
     }
 

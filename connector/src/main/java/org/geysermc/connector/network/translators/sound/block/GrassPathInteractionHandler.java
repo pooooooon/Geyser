@@ -45,7 +45,7 @@ public class GrassPathInteractionHandler implements BlockSoundInteractionHandler
         levelSoundEventPacket.setRelativeVolumeDisabled(false);
         levelSoundEventPacket.setIdentifier(":");
         levelSoundEventPacket.setSound(SoundEvent.ITEM_USE_ON);
-        levelSoundEventPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaBlockState(identifier)));
+        levelSoundEventPacket.setExtraData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(GeyserEdition.BLOCK_TRANSLATOR.getJavaBlockState(identifier)));
         session.sendUpstreamPacket(levelSoundEventPacket);
     }
 }

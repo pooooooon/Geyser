@@ -86,7 +86,7 @@ public class BlockInventoryHolder extends InventoryHolder {
         UpdateBlockPacket blockPacket = new UpdateBlockPacket();
         blockPacket.setDataLayer(0);
         blockPacket.setBlockPosition(holderPos);
-        blockPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(realBlock));
+        blockPacket.setRuntimeId(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(realBlock));
         session.sendUpstreamPacket(blockPacket);
     }
 }

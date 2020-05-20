@@ -83,7 +83,7 @@ public class JavaPlayBuiltinSoundTranslator extends PacketTranslator<ServerPlayB
             // Bedrock has a number for each type of note, then proceeds up the scale by adding to that number
             soundPacket.setExtraData(soundMapping.getExtraData() + (int)(Math.round((Math.log10(packet.getPitch()) / Math.log10(2)) * 12)) + 12);
         } else if (sound == SoundEvent.PLACE && soundMapping.getExtraData() == -1) {
-            soundPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaBlockState(soundMapping.getIdentifier())));
+            soundPacket.setExtraData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(GeyserEdition.BLOCK_TRANSLATOR.getJavaBlockState(soundMapping.getIdentifier())));
             soundPacket.setIdentifier(":");
         } else {
             soundPacket.setExtraData(soundMapping.getExtraData());

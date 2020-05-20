@@ -47,7 +47,9 @@ public class SoundUtils {
 
     public SoundUtils(GeyserEdition edition) {
         this.edition = edition;
+    }
 
+    public void setup() {
         /* Load sound mappings */
         InputStream stream = GeyserEdition.TOOLBOX.getResource("mappings/sounds.json");
         JsonNode soundsTree;

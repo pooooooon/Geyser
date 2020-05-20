@@ -47,11 +47,11 @@ public class JavaPlayerActionAckTranslator extends PacketTranslator<ServerPlayer
         LevelEventPacket levelEvent = new LevelEventPacket();
         switch (packet.getAction()) {
             case FINISH_DIGGING:
-                double blockHardness = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(session.getBreakingBlock() == null ? 0 : session.getBreakingBlock().getId());
+                double blockHardness = GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeIdToHardness().get(session.getBreakingBlock() == null ? 0 : session.getBreakingBlock().getId());
                 if (session.getGameMode() != GameMode.CREATIVE && blockHardness != 0) {
                     levelEvent.setType(LevelEventType.DESTROY);
                     levelEvent.setPosition(Vector3f.from(packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ()));
-                    levelEvent.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(session.getBreakingBlock()));
+                    levelEvent.setData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(session.getBreakingBlock()));
                     session.sendUpstreamPacket(levelEvent);
                     session.setBreakingBlock(null);
                 }
@@ -61,7 +61,7 @@ public class JavaPlayerActionAckTranslator extends PacketTranslator<ServerPlayer
                 if (session.getGameMode() == GameMode.CREATIVE) {
                     break;
                 }
-                blockHardness = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(packet.getNewState().getId());
+                blockHardness = GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeIdToHardness().get(packet.getNewState().getId());
                 levelEvent.setType(LevelEventType.BLOCK_START_BREAK);
                 levelEvent.setPosition(Vector3f.from(
                         packet.getPosition().getX(),

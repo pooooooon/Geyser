@@ -75,7 +75,7 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
                     case 0:
 
                         // Bedrock sends block interact code for a Java entity so we send entity code back to Java
-                        if (GeyserEdition.TRANSLATORS.getBlockTranslator().isItemFrame(packet.getBlockRuntimeId()) &&
+                        if (GeyserEdition.BLOCK_TRANSLATOR.isItemFrame(packet.getBlockRuntimeId()) &&
                                 session.getEntityCache().getEntityByJavaId(ItemFrameEntity.getItemFrameEntityId(session, packet.getBlockPosition())) != null) {
                             Vector3f vector = packet.getClickPosition();
                             ClientPlayerInteractEntityPacket interactPacket = new ClientPlayerInteractEntityPacket((int) ItemFrameEntity.getItemFrameEntityId(session, packet.getBlockPosition()),
@@ -133,7 +133,7 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
                         break;
                     case 2:
                         BlockState blockState = session.getConnector().getWorldManager().getBlockAt(session, packet.getBlockPosition().getX(), packet.getBlockPosition().getY(), packet.getBlockPosition().getZ());
-                        double blockHardness = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(blockState.getId());
+                        double blockHardness = GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeIdToHardness().get(blockState.getId());
                         if (session.getGameMode() == GameMode.CREATIVE || (session.getConnector().getConfig().isCacheChunks() && blockHardness == 0)) {
                             session.setLastBlockPlacedId(null);
                             session.setLastBlockPlacePosition(null);
@@ -141,7 +141,7 @@ public class BedrockInventoryTransactionTranslator extends PacketTranslator<Inve
                             LevelEventPacket blockBreakPacket = new LevelEventPacket();
                             blockBreakPacket.setType(LevelEventType.DESTROY);
                             blockBreakPacket.setPosition(packet.getBlockPosition().toFloat());
-                            blockBreakPacket.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState));
+                            blockBreakPacket.setData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(blockState));
                             session.sendUpstreamPacket(blockBreakPacket);
                         }
 

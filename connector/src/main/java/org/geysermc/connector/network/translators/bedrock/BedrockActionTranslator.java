@@ -114,7 +114,7 @@ public class BedrockActionTranslator extends PacketTranslator<PlayerActionPacket
             case CONTINUE_BREAK:
                 LevelEventPacket continueBreakPacket = new LevelEventPacket();
                 continueBreakPacket.setType(LevelEventType.PUNCH_BLOCK);
-                continueBreakPacket.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(session.getBreakingBlock() == null ? GeyserEdition.TRANSLATORS.getBlockTranslator().getAir() : session.getBreakingBlock()));
+                continueBreakPacket.setData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(session.getBreakingBlock() == null ? GeyserEdition.BLOCK_TRANSLATOR.getAir() : session.getBreakingBlock()));
                 continueBreakPacket.setPosition(packet.getBlockPosition().toFloat());
                 session.sendUpstreamPacket(continueBreakPacket);
                 break;

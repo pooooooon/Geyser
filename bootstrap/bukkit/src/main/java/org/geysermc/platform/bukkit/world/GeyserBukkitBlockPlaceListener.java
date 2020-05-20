@@ -55,12 +55,12 @@ public class GeyserBukkitBlockPlaceListener implements Listener {
                 placeBlockSoundPacket.setBabySound(false);
                 String javaBlockId;
                 if (isLegacy) {
-                    javaBlockId = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(GeyserBukkitWorldManager.getLegacyBlock(session,
+                    javaBlockId = GeyserEdition.BLOCK_TRANSLATOR.getJavaIdBlockMap().inverse().get(GeyserBukkitWorldManager.getLegacyBlock(session,
                             event.getBlockPlaced().getX(), event.getBlockPlaced().getY(), event.getBlockPlaced().getZ(), isViaVersion));
                 } else {
                     javaBlockId = event.getBlockPlaced().getBlockData().getAsString();
                 }
-                placeBlockSoundPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().get(javaBlockId)));
+                placeBlockSoundPacket.setExtraData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(GeyserEdition.BLOCK_TRANSLATOR.getJavaIdBlockMap().get(javaBlockId)));
                 placeBlockSoundPacket.setIdentifier(":");
                 session.sendUpstreamPacket(placeBlockSoundPacket);
                 session.setLastBlockPlacePosition(null);

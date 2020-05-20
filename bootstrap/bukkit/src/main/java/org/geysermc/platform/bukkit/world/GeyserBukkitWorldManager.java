@@ -48,12 +48,12 @@ public class GeyserBukkitWorldManager extends WorldManager {
     @Override
     public BlockState getBlockAt(GeyserSession session, int x, int y, int z) {
         if (session.getPlayerEntity() == null) {
-            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
+            return GeyserEdition.BLOCK_TRANSLATOR.getAir();
         }
         if (isLegacy) {
             return getLegacyBlock(session, x, y, z, isViaVersion);
         }
-        return GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().get(Bukkit.getPlayer(session.getPlayerEntity().getUsername()).getWorld().getBlockAt(x, y, z).getBlockData().getAsString());
+        return GeyserEdition.BLOCK_TRANSLATOR.getJavaIdBlockMap().get(Bukkit.getPlayer(session.getPlayerEntity().getUsername()).getWorld().getBlockAt(x, y, z).getBlockData().getAsString());
     }
 
     @SuppressWarnings("deprecation")
@@ -68,7 +68,7 @@ public class GeyserBukkitWorldManager extends WorldManager {
             int fourteenBlockId = us.myles.ViaVersion.protocols.protocol1_14to1_13_2.data.MappingData.blockStateMappings.getNewId(thirteenPointOneBlockId);
             return new BlockState(MappingData.blockStateMappings.getNewId(fourteenBlockId));
         } else {
-            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
+            return GeyserEdition.BLOCK_TRANSLATOR.getAir();
         }
     }
 }

@@ -45,7 +45,7 @@ public class JavaBlockBreakAnimTranslator extends PacketTranslator<ServerBlockBr
     @Override
     public void translate(ServerBlockBreakAnimPacket packet, GeyserSession session) {
         BlockState state = session.getConnector().getWorldManager().getBlockAt(session, packet.getPosition().getX(), packet.getPosition().getY(), packet.getPosition().getZ());
-        int breakTime = (int) (65535 / Math.ceil(GeyserEdition.BLOCK_UTILS.getBreakTime(GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToHardness().get(state.getId()), state.getId(), ItemEntry.AIR, new CompoundTag(""), null) * 20));
+        int breakTime = (int) (65535 / Math.ceil(GeyserEdition.BLOCK_UTILS.getBreakTime(GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeIdToHardness().get(state.getId()), state.getId(), ItemEntry.AIR, new CompoundTag(""), null) * 20));
         LevelEventPacket levelEventPacket = new LevelEventPacket();
         levelEventPacket.setPosition(Vector3f.from(
                 packet.getPosition().getX(),

@@ -42,9 +42,6 @@ import org.geysermc.connector.network.translators.inventory.action.InventoryActi
 import java.util.List;
 
 public class PlayerInventoryTranslator extends InventoryTranslator {
-    private static final ItemData UNUSUABLE_CRAFTING_SPACE_BLOCK = GeyserEdition.INVENTORY_UTILS.createUnusableSpaceBlock(
-            "The creative crafting grid is\nunavailable in Java Edition");
-
     public PlayerInventoryTranslator() {
         super(46);
     }
@@ -97,7 +94,11 @@ public class PlayerInventoryTranslator extends InventoryTranslator {
             slotPacket.setSlot(i + 27);
 
             if (session.getGameMode() == GameMode.CREATIVE) {
-                slotPacket.setItem(UNUSUABLE_CRAFTING_SPACE_BLOCK);
+                slotPacket.setItem(
+                        GeyserEdition.INVENTORY_UTILS.createUnusableSpaceBlock(
+                            "The creative crafting grid is\nunavailable in Java Edition"
+                        )
+                );
             }else{
                 slotPacket.setItem(GeyserEdition.TRANSLATORS.getItemTranslator().translateToBedrock(session, inventory.getItem(i)));
             }

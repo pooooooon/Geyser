@@ -58,7 +58,7 @@ public class BedrockBlockPickRequestPacketTranslator extends PacketTranslator<Bl
             inventory = session.getInventory();
         }
 
-        String targetIdentifier = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(blockToPick).split("\\[")[0];
+        String targetIdentifier = GeyserEdition.BLOCK_TRANSLATOR.getJavaIdBlockMap().inverse().get(blockToPick).split("\\[")[0];
         ItemTranslator itemTranslator = GeyserEdition.TRANSLATORS.getItemTranslator();
 
         // Check hotbar for item

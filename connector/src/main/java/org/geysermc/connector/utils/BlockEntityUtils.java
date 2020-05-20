@@ -11,12 +11,14 @@ import org.geysermc.connector.network.translators.world.block.entity.BlockEntity
 @Getter
 public class BlockEntityUtils {
 
-    private final BlockEntityTranslator emptyTranslator;
+    private BlockEntityTranslator emptyTranslator;
     private GeyserEdition edition;
 
     public BlockEntityUtils(GeyserEdition edition) {
         this.edition = edition;
+    }
 
+    public void setup() {
         emptyTranslator = GeyserEdition.TRANSLATORS.getBlockEntityTranslators().get("Empty");
     }
 

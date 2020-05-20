@@ -29,6 +29,7 @@ package org.geysermc.connector;
 import com.nukkitx.protocol.bedrock.BedrockPacketCodec;
 import lombok.Getter;
 import org.geysermc.connector.network.translators.Translators;
+import org.geysermc.connector.network.translators.world.block.BlockTranslator;
 import org.geysermc.connector.utils.BlockEntityUtils;
 import org.geysermc.connector.utils.BlockUtils;
 import org.geysermc.connector.utils.ChunkUtils;
@@ -53,10 +54,12 @@ import java.util.Map;
 public abstract class GeyserEdition {
 
     private static final Map<String, Map<String, Class<? extends GeyserEdition>>> editions = new HashMap<>();
+
+    // -- Convenience Static Calls -- //
+    public static BlockTranslator BLOCK_TRANSLATOR;
     public static Translators TRANSLATORS;
     public static Toolbox TOOLBOX;
     public static EffectUtils EFFECT_UTILS;
-    // -- Convenience -- //
     public static BlockEntityUtils BLOCK_ENTITY_UTILS;
     public static SoundUtils SOUND_UTILS;
     public static BlockUtils BLOCK_UTILS;
@@ -70,17 +73,63 @@ public abstract class GeyserEdition {
     public static SkinProvider SKIN_PROVIDER;
     public static SkinUtils SKIN_UTILS;
     private static GeyserEdition INSTANCE;
+
+    // -- Variables -- //
     private final GeyserConnector connector;
     private final String edition;
     private final String version;
     protected BedrockPacketCodec codec;
     protected String pongEdition;
 
+    protected BlockTranslator blockTranslator;
+    protected Translators translators;
+    protected Toolbox toolbox;
+    protected EffectUtils effectUtils;
+    protected BlockEntityUtils blockEntityUtils;
+    protected SoundUtils soundUtils;
+    protected BlockUtils blockUtils;
+    protected ChunkUtils chunkUtils;
+    protected InventoryUtils inventoryUtils;
+    protected DimensionUtils dimensionUtils;
+    protected EntityUtils entityUtils;
+    protected ItemUtils itemUtils;
+    protected LoginEncryptionUtils loginEncryptionUtils;
+    protected MessageUtils messageUtils;
+    protected SkinProvider skinProvider;
+    protected SkinUtils skinUtils;
+
     protected GeyserEdition(GeyserConnector connector, String edition, String version) {
         INSTANCE = this;
         this.connector = connector;
         this.edition = edition;
         this.version = version;
+    }
+
+    protected void setup() {
+        // Setup Global Convenience Functions
+        BLOCK_TRANSLATOR = blockTranslator;
+        TRANSLATORS = translators;
+        TOOLBOX = toolbox;
+        EFFECT_UTILS = effectUtils;
+        BLOCK_ENTITY_UTILS = blockEntityUtils;
+        SOUND_UTILS = soundUtils;
+        BLOCK_UTILS = blockUtils;
+        CHUNK_UTILS = chunkUtils;
+        INVENTORY_UTILS = inventoryUtils;
+        DIMENSION_UTILS = dimensionUtils;
+        ENTITY_UTILS = entityUtils;
+        ITEM_UTILS = itemUtils;
+        LOGIN_ENCRYPTION_UTILS = loginEncryptionUtils;
+        MESSAGE_UTILS = messageUtils;
+        SKIN_PROVIDER = skinProvider;
+        SKIN_UTILS = skinUtils;
+
+        // Call Setup on each
+        toolbox.setup();
+        blockTranslator.setup();
+        translators.setup();
+        effectUtils.setup();
+        blockEntityUtils.setup();
     }
 
     public GeyserEdition(GeyserConnector connector) {
@@ -107,7 +156,9 @@ public abstract class GeyserEdition {
         }
 
         try {
-            return editions.get(edition).get(version).getConstructor(GeyserConnector.class).newInstance(connector);
+            GeyserEdition ret = editions.get(edition).get(version).getConstructor(GeyserConnector.class).newInstance(connector);
+            ret.setup();
+            return ret;
         } catch (InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             throw new InvalidEditionException("Unable to create Edition: " + edition + " version " + version, e);
         }

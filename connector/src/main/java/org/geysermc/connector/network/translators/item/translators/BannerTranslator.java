@@ -41,10 +41,9 @@ import java.util.stream.Collectors;
 @ItemRemapper
 public class BannerTranslator extends ItemStackTranslator {
 
-    private final List<ItemEntry> appliedItems;
+    private List<ItemEntry> appliedItems;
 
     public BannerTranslator() {
-        appliedItems = GeyserEdition.TOOLBOX.getItemEntries().values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("banner")).collect(Collectors.toList());
     }
 
     @Override
@@ -87,6 +86,11 @@ public class BannerTranslator extends ItemStackTranslator {
 
     @Override
     public List<ItemEntry> getAppliedItems() {
+        if (appliedItems == null) {
+            appliedItems = GeyserEdition.TOOLBOX.getItemEntries().values().stream()
+                    .filter(entry -> entry.getJavaIdentifier().endsWith("banner"))
+                    .collect(Collectors.toList());
+        }
         return appliedItems;
     }
 }

@@ -79,7 +79,9 @@ public class BlockTranslator {
 
     public BlockTranslator(GeyserEdition edition) {
         this.edition = edition;
+    }
 
+    public void setup() {
         /* Load block palette */
         InputStream stream = GeyserEdition.TOOLBOX.getResource("data/runtime_block_states.dat");
 

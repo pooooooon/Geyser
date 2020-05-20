@@ -66,7 +66,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
         // We need to check if the identifier is the same, else a packet with the sound of what the
         // player has in their hand is played, despite if the block is being placed or not
         boolean contains = false;
-        String identifier = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock()).split("\\[")[0];
+        String identifier = GeyserEdition.BLOCK_TRANSLATOR.getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock()).split("\\[")[0];
         if (identifier.equals(session.getLastBlockPlacedId())) {
             contains = true;
         }
@@ -82,7 +82,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
         placeBlockSoundPacket.setSound(SoundEvent.PLACE);
         placeBlockSoundPacket.setPosition(lastPlacePos.toFloat());
         placeBlockSoundPacket.setBabySound(false);
-        placeBlockSoundPacket.setExtraData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(packet.getRecord().getBlock()));
+        placeBlockSoundPacket.setExtraData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(packet.getRecord().getBlock()));
         placeBlockSoundPacket.setIdentifier(":");
         session.sendUpstreamPacket(placeBlockSoundPacket);
         session.setLastBlockPlacePosition(null);
@@ -100,7 +100,7 @@ public class JavaBlockChangeTranslator extends PacketTranslator<ServerBlockChang
                 || lastInteractPos.getZ() != packet.getRecord().getPosition().getZ())) {
             return;
         }
-        String identifier = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock());
+        String identifier = GeyserEdition.BLOCK_TRANSLATOR.getJavaIdBlockMap().inverse().get(packet.getRecord().getBlock());
         session.setInteracting(false);
         session.setLastInteractionPosition(null);
         BlockSoundInteractionHandler.handleBlockInteraction(session, lastInteractPos.toFloat(), identifier);

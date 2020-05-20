@@ -478,7 +478,7 @@ public class GeyserSession implements CommandSender {
         // startGamePacket.setCurrentTick(0);
         startGamePacket.setEnchantmentSeed(0);
         startGamePacket.setMultiplayerCorrelationId("");
-        startGamePacket.setBlockPalette(GeyserEdition.TRANSLATORS.getBlockTranslator().getBlocks());
+        startGamePacket.setBlockPalette(GeyserEdition.BLOCK_TRANSLATOR.getBlocks());
         startGamePacket.setItemEntries(GeyserEdition.TOOLBOX.getItems());
         startGamePacket.setVanillaVersion("*");
         // startGamePacket.setMovementServerAuthoritative(true);

@@ -49,14 +49,14 @@ public class JavaSpawnParticleTranslator extends PacketTranslator<ServerSpawnPar
             case BLOCK:
                 particle.setType(LevelEventType.DESTROY);
                 particle.setPosition(Vector3f.from(packet.getX(), packet.getY(), packet.getZ()));
-                particle.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(((BlockParticleData) packet.getParticle().getData()).getBlockState()));
+                particle.setData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(((BlockParticleData) packet.getParticle().getData()).getBlockState()));
                 session.sendUpstreamPacket(particle);
                 break;
             case FALLING_DUST:
                 //In fact, FallingDustParticle should have data like DustParticle,
                 //but in MCProtocol, its data is BlockState(1).
                 particle.setType(LevelEventType.PARTICLE_FALLING_DUST);
-                particle.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(((FallingDustParticleData) packet.getParticle().getData()).getBlockState()));
+                particle.setData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(((FallingDustParticleData) packet.getParticle().getData()).getBlockState()));
                 particle.setPosition(Vector3f.from(packet.getX(), packet.getY(), packet.getZ()));
                 session.sendUpstreamPacket(particle);
                 break;

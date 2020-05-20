@@ -71,14 +71,14 @@ public class ItemFrameEntity extends Entity {
         CompoundTagBuilder builder = CompoundTag.builder();
         builder.tag(CompoundTag.builder()
                 .stringTag("name", "minecraft:frame")
-                .intTag("version", GeyserEdition.TRANSLATORS.getBlockTranslator().getBlockStateVersion())
+                .intTag("version", GeyserEdition.BLOCK_TRANSLATOR.getBlockStateVersion())
                 .tag(CompoundTag.builder()
                         .intTag("facing_direction", direction.ordinal())
                         .byteTag("item_frame_map_bit", (byte) 0)
                         .build("states"))
                 .build("block"));
         builder.shortTag("id", (short) 199);
-        bedrockRuntimeId = GeyserEdition.TRANSLATORS.getBlockTranslator().getItemFrame(builder.buildRootTag());
+        bedrockRuntimeId = GeyserEdition.BLOCK_TRANSLATOR.getItemFrame(builder.buildRootTag());
         bedrockPosition = Vector3i.from(position.getFloorX(), position.getFloorY(), position.getFloorZ());
     }
 

@@ -35,6 +35,6 @@ public class FallingBlockEntity extends Entity {
     public FallingBlockEntity(long entityId, long geyserId, EntityType entityType, Vector3f position, Vector3f motion, Vector3f rotation, int javaId) {
         super(entityId, geyserId, entityType, position, motion, rotation);
 
-        this.metadata.put(EntityData.VARIANT, GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(javaId));
+        this.metadata.put(EntityData.VARIANT, GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(javaId));
     }
 }

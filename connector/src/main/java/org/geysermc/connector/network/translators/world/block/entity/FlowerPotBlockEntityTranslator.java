@@ -47,7 +47,7 @@ public class FlowerPotBlockEntityTranslator implements BedrockOnlyBlockEntity, R
         GeyserEdition.BLOCK_ENTITY_UTILS.updateBlockEntity(session, getTag(blockState, position), position);
         UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
         updateBlockPacket.setDataLayer(0);
-        updateBlockPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState));
+        updateBlockPacket.setRuntimeId(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(blockState));
         updateBlockPacket.setBlockPosition(position);
         updateBlockPacket.getFlags().add(UpdateBlockPacket.Flag.PRIORITY);
         updateBlockPacket.getFlags().add(UpdateBlockPacket.Flag.NONE);

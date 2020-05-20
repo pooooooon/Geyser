@@ -90,10 +90,10 @@ public class ChunkUtils {
                 for (int y = 0; y < 16; y++) {
                     for (int z = 0; z < 16; z++) {
                         BlockState blockState = chunk.get(x, y, z);
-                        int id = GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState);
+                        int id = GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(blockState);
 
                         // Check to see if the name is in BlockTranslator.getBlockEntityString, and therefore must be handled differently
-                        if (GeyserEdition.TRANSLATORS.getBlockTranslator().getBlockEntityString(blockState) != null) {
+                        if (GeyserEdition.BLOCK_TRANSLATOR.getBlockEntityString(blockState) != null) {
                             Position pos = new ChunkPosition(column.getX(), column.getZ()).getBlock(x, (chunkY << 4) + y, z);
                             blockEntityPositions.put(pos, blockState);
                         }
@@ -107,8 +107,8 @@ public class ChunkUtils {
                             bedrockOnlyBlockEntities.add(BedrockOnlyBlockEntity.getTag(Vector3i.from(pos.getX(), pos.getY(), pos.getZ()), blockState));
                         }
 
-                        if (GeyserEdition.TRANSLATORS.getBlockTranslator().isWaterlogged(blockState)) {
-                            section.getBlockStorageArray()[1].setFullBlock(ChunkSection.blockPosition(x, y, z), GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockWaterId());
+                        if (GeyserEdition.BLOCK_TRANSLATOR.isWaterlogged(blockState)) {
+                            section.getBlockStorageArray()[1].setFullBlock(ChunkSection.blockPosition(x, y, z), GeyserEdition.BLOCK_TRANSLATOR.getBedrockWaterId());
                         }
                     }
                 }
@@ -165,7 +165,7 @@ public class ChunkUtils {
 
     public void updateBlock(GeyserSession session, BlockState blockState, Vector3i position) {
         // Checks for item frames so they aren't tripped up and removed
-        if (ItemFrameEntity.positionContainsItemFrame(session, position) && blockState.equals(GeyserEdition.TRANSLATORS.getBlockTranslator().getAir())) {
+        if (ItemFrameEntity.positionContainsItemFrame(session, position) && blockState.equals(GeyserEdition.BLOCK_TRANSLATOR.getAir())) {
             ((ItemFrameEntity) session.getEntityCache().getEntityByJavaId(ItemFrameEntity.getItemFrameEntityId(session, position))).updateBlock(session);
             return;
         } else if (ItemFrameEntity.positionContainsItemFrame(session, position)) {
@@ -177,7 +177,7 @@ public class ChunkUtils {
             }
         }
 
-        int blockId = GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(blockState);
+        int blockId = GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(blockState);
 
         UpdateBlockPacket updateBlockPacket = new UpdateBlockPacket();
         updateBlockPacket.setDataLayer(0);
@@ -189,8 +189,8 @@ public class ChunkUtils {
         UpdateBlockPacket waterPacket = new UpdateBlockPacket();
         waterPacket.setDataLayer(1);
         waterPacket.setBlockPosition(position);
-        if (GeyserEdition.TRANSLATORS.getBlockTranslator().isWaterlogged(blockState)) {
-            waterPacket.setRuntimeId(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockWaterId());
+        if (GeyserEdition.BLOCK_TRANSLATOR.isWaterlogged(blockState)) {
+            waterPacket.setRuntimeId(GeyserEdition.BLOCK_TRANSLATOR.getBedrockWaterId());
         } else {
             waterPacket.setRuntimeId(0);
         }

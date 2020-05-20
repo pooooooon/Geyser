@@ -45,7 +45,6 @@ public class PotionTranslator extends ItemStackTranslator {
     private List<ItemEntry> appliedItems;
 
     public PotionTranslator() {
-        appliedItems = GeyserEdition.TOOLBOX.getItemEntries().values().stream().filter(entry -> entry.getJavaIdentifier().endsWith("potion")).collect(Collectors.toList());
     }
 
     @Override
@@ -75,6 +74,11 @@ public class PotionTranslator extends ItemStackTranslator {
 
     @Override
     public List<ItemEntry> getAppliedItems() {
+        if (appliedItems == null) {
+            appliedItems = GeyserEdition.TOOLBOX.getItemEntries().values().stream()
+                    .filter(entry -> entry.getJavaIdentifier().endsWith("potion"))
+                    .collect(Collectors.toList());
+        }
         return appliedItems;
     }
 }

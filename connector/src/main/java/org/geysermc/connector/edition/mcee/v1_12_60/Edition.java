@@ -242,6 +242,7 @@ import org.geysermc.connector.network.translators.world.block.entity.EndGatewayB
 import org.geysermc.connector.network.translators.world.block.entity.ShulkerBoxBlockEntityTranslator;
 import org.geysermc.connector.network.translators.world.block.entity.SignBlockEntityTranslator;
 import org.geysermc.connector.network.translators.world.block.entity.SkullBlockEntityTranslator;
+import org.geysermc.connector.network.translators.world.block.entity.SpawnerBlockEntityTranslator;
 import org.geysermc.connector.utils.BlockEntityUtils;
 import org.geysermc.connector.utils.BlockUtils;
 import org.geysermc.connector.utils.ChunkUtils;
@@ -266,27 +267,30 @@ public class Edition extends GeyserEdition {
         // Token Manager
         tokenManager = new TokenManager(this);
 
-        TOOLBOX = new Toolbox(this);
-        TRANSLATORS = new Translators(this);
-        EFFECT_UTILS = new EffectUtils(this);
-        BLOCK_ENTITY_UTILS = new BlockEntityUtils(this);
-        SOUND_UTILS = new SoundUtils(this);
-        BLOCK_UTILS = new BlockUtils(this);
-        CHUNK_UTILS = new ChunkUtils(this);
-        INVENTORY_UTILS = new InventoryUtils(this);
-        DIMENSION_UTILS = new DimensionUtils(this);
-        ENTITY_UTILS = new EntityUtils(this);
-        ITEM_UTILS = new ItemUtils(this);
-        LOGIN_ENCRYPTION_UTILS = new LoginEncryptionUtils(this, tokenManager);
-        MESSAGE_UTILS = new MessageUtils(this);
-        SKIN_PROVIDER = new SkinProvider(this);
-        SKIN_UTILS = new SkinUtils(this);
+        // Utilities
+        toolbox = new Toolbox(this);
+        blockTranslator = new BlockTranslator(this);
+        translators = new Translators(this);
+        effectUtils = new EffectUtils(this);
+        blockEntityUtils = new BlockEntityUtils(this);
+        soundUtils = new SoundUtils(this);
+        blockUtils = new BlockUtils(this);
+        chunkUtils = new ChunkUtils(this);
+        inventoryUtils = new InventoryUtils(this);
+        dimensionUtils = new DimensionUtils(this);
+        entityUtils = new EntityUtils(this);
+        itemUtils = new ItemUtils(this);
+        loginEncryptionUtils = new LoginEncryptionUtils(this, tokenManager);
+        messageUtils = new MessageUtils(this);
+        skinProvider = new SkinProvider(this);
+        skinUtils = new SkinUtils(this);
 
+        // Version
         codec = Bedrock_v363.V363_CODEC;
         pongEdition = "MCEE";
 
         // Register Block Entity Translators
-        TRANSLATORS
+        translators
                 .registerBlockEntityTranslator("Banner", new BannerBlockEntityTranslator())
                 .registerBlockEntityTranslator("Bed", new BedBlockEntityTranslator())
                 .registerBlockEntityTranslator("Campfire", new CampfireBlockEntityTranslator())
@@ -295,13 +299,11 @@ public class Edition extends GeyserEdition {
                 .registerBlockEntityTranslator("EndGateway", new EndGatewayBlockEntityTranslator())
                 .registerBlockEntityTranslator("ShulkerBox", new ShulkerBoxBlockEntityTranslator())
                 .registerBlockEntityTranslator("Sign", new SignBlockEntityTranslator())
-                .registerBlockEntityTranslator("Skull", new SkullBlockEntityTranslator());
-
-        // Register Bedrock Block Translator
-        TRANSLATORS.registerBlockTranslator(new BlockTranslator(this));
+                .registerBlockEntityTranslator("Skull", new SkullBlockEntityTranslator())
+                .registerBlockEntityTranslator("MobSpawner", new SpawnerBlockEntityTranslator());
 
         // Register Bedrock Packet Translators
-        TRANSLATORS
+        translators
                 .registerBedrockPacketTranslator(PlayerActionPacket.class, new BedrockActionTranslator())
                 .registerBedrockPacketTranslator(AnimatePacket.class, new BedrockAnimateTranslator())
                 .registerBedrockPacketTranslator(BlockEntityDataPacket.class, new BedrockBlockEntityDataTranslator())
@@ -321,7 +323,7 @@ public class Edition extends GeyserEdition {
                 .registerBedrockPacketTranslator(TextPacket.class, new BedrockTextTranslator());
 
         // Register Java Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerBossBarPacket.class, new JavaBossBarTranslator())
                 .registerJavaPacketTranslator(ServerChatPacket.class, new JavaChatTranslator())
                 .registerJavaPacketTranslator(ServerDeclareRecipesPacket.class, new JavaDeclareRecipesTranslator())
@@ -334,7 +336,7 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerTitlePacket.class, new JavaTitleTranslator());
 
         // Register Java Entity Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerEntityAnimationPacket.class, new JavaEntityAnimationTranslator())
                 .registerJavaPacketTranslator(ServerEntityDestroyPacket.class, new JavaEntityDestroyTranslator())
                 .registerJavaPacketTranslator(ServerEntityEffectPacket.class, new JavaEntityEffectTranslator())
@@ -351,7 +353,7 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerEntityVelocityPacket.class, new JavaEntityVelocityTranslator());
 
         // Register Java Entity Player Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerPlayerAbilitiesPacket.class, new JavaPlayerAbilitiesTranslator())
                 .registerJavaPacketTranslator(ServerPlayerActionAckPacket.class, new JavaPlayerActionAckTranslator())
                 .registerJavaPacketTranslator(ServerPlayerChangeHeldItemPacket.class, new JavaPlayerChangeHeldItemTranslator())
@@ -362,7 +364,7 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerStopSoundPacket.class, new JavaPlayerStopSoundTranslator());
 
         // Register Java Entity Spawn Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerSpawnExpOrbPacket.class, new JavaSpawnExpOrbTranslator())
                 .registerJavaPacketTranslator(ServerSpawnGlobalEntityPacket.class, new JavaSpawnGlobalEntityTranslator())
                 .registerJavaPacketTranslator(ServerSpawnMobPacket.class, new JavaSpawnMobTranslator())
@@ -371,14 +373,14 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerSpawnPlayerPacket.class, new JavaSpawnPlayerTranslator());
 
         // Register Java Scoreboard Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerDisplayScoreboardPacket.class, new JavaDisplayScoreboardTranslator())
                 .registerJavaPacketTranslator(ServerScoreboardObjectivePacket.class, new JavaScoreboardObjectiveTranslator())
                 .registerJavaPacketTranslator(ServerTeamPacket.class, new JavaTeamTranslator())
                 .registerJavaPacketTranslator(ServerUpdateScorePacket.class, new JavaUpdateScoreTranslator());
 
         // Register Java Window Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerCloseWindowPacket.class, new JavaCloseWindowTranslator())
                 .registerJavaPacketTranslator(ServerConfirmTransactionPacket.class, new JavaConfirmTransactionTranslator())
                 .registerJavaPacketTranslator(ServerOpenWindowPacket.class, new JavaOpenWindowTranslator())
@@ -387,7 +389,7 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerWindowPropertyPacket.class, new JavaWindowPropertyTranslator());
 
         // Register Java World Packet Translators
-        TRANSLATORS
+        translators
                 .registerJavaPacketTranslator(ServerBlockBreakAnimPacket.class, new JavaBlockBreakAnimTranslator())
                 .registerJavaPacketTranslator(ServerBlockChangePacket.class, new JavaBlockChangeTranslator())
                 .registerJavaPacketTranslator(ServerBlockValuePacket.class, new JavaBlockValueTranslator())
@@ -409,7 +411,7 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerUpdateViewPositionPacket.class, new JavaUpdateViewPositionTranslator());
 
         // Register Inventory Translators
-        TRANSLATORS
+        translators
                 .registerInventoryTranslator(null, new PlayerInventoryTranslator())
                 .registerInventoryTranslator(WindowType.GENERIC_9X1, new SingleChestInventoryTranslator(9))
                 .registerInventoryTranslator(WindowType.GENERIC_9X2, new SingleChestInventoryTranslator(18))
@@ -426,7 +428,7 @@ public class Edition extends GeyserEdition {
         // Register Inventory Furnace Translators
         InventoryTranslator furnace = new FurnaceInventoryTranslator();
 
-        TRANSLATORS
+        translators
                 .registerInventoryTranslator(WindowType.FURNACE, furnace)
                 .registerInventoryTranslator(WindowType.BLAST_FURNACE, furnace)
                 .registerInventoryTranslator(WindowType.SMOKER, furnace);
@@ -434,19 +436,19 @@ public class Edition extends GeyserEdition {
         // Register Inventory Container Translators
         InventoryUpdater containerUpdater = new ContainerInventoryUpdater();
 
-        TRANSLATORS
+        translators
                 .registerInventoryTranslator(WindowType.GENERIC_3X3, new BlockInventoryTranslator(9, "minecraft:dispenser[facing=north,triggered=false]", ContainerType.DISPENSER, containerUpdater))
                 .registerInventoryTranslator(WindowType.HOPPER, new BlockInventoryTranslator(5, "minecraft:hopper[enabled=false,facing=down]", ContainerType.HOPPER, containerUpdater))
                 .registerInventoryTranslator(WindowType.SHULKER_BOX, new BlockInventoryTranslator(27, "minecraft:shulker_box[facing=north]", ContainerType.CONTAINER, containerUpdater));
 //                .registerInventoryTranslator(WindowType.BEACON, new BlockInventoryTranslator(1, "minecraft:beacon", ContainerType.BEACON)) //@TODO
 
         // Register Item Translators
-        TRANSLATORS
+        translators
                 .registerItemStackTranslator(new BannerTranslator())
                 .registerItemStackTranslator(new PotionTranslator());
 
         // Register Item NBT Translators
-        TRANSLATORS
+        translators
                 .registerNbtItemStackTranslator(new BasicItemTranslator())
                 .registerNbtItemStackTranslator(new BookPagesTranslator())
                 .registerNbtItemStackTranslator(new EnchantedBookTranslator())
@@ -455,7 +457,7 @@ public class Edition extends GeyserEdition {
                 .registerNbtItemStackTranslator(new MapItemTranslator());
 
         // Register Block Sound Handlers
-        TRANSLATORS
+        translators
                 .registerSoundInteractionHandler(new BucketSoundInteractionHandler())
                 .registerSoundInteractionHandler(new ComparatorSoundInteractHandler())
                 .registerSoundInteractionHandler(new DoorSoundInteractionHandler())
@@ -465,7 +467,7 @@ public class Edition extends GeyserEdition {
                 .registerSoundInteractionHandler(new LeverSoundInteractionHandler());
 
         // Register Entity Sound Handlers
-        TRANSLATORS
+        translators
                 .registerSoundInteractionHandler(new MilkCowSoundInteractionHandler());
 
     }

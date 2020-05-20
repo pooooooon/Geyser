@@ -51,7 +51,7 @@ public class JavaExplosionTranslator extends PacketTranslator<ServerExplosionPac
             levelEventPacket.setData(0);
             levelEventPacket.setPosition(pos.toFloat());
             session.sendUpstreamPacket(levelEventPacket);
-            GeyserEdition.CHUNK_UTILS.updateBlock(session, GeyserEdition.TRANSLATORS.getBlockTranslator().getAir(), pos.toInt());
+            GeyserEdition.CHUNK_UTILS.updateBlock(session, GeyserEdition.BLOCK_TRANSLATOR.getAir(), pos.toInt());
         }
         LevelSoundEventPacket levelSoundEventPacket = new LevelSoundEventPacket();
         levelSoundEventPacket.setRelativeVolumeDisabled(false);

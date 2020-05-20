@@ -108,10 +108,10 @@ public class BlockUtils {
     }
 
     public double getBreakTime(double blockHardness, int blockId, ItemEntry item, CompoundTag nbtData, PlayerEntity player) {
-        boolean isWoolBlock = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeWoolIds().contains(blockId);
-        boolean isCobweb = blockId == GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeCobwebId();
-        String blockToolType = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToToolType().getOrDefault(blockId, "");
-        boolean canHarvestWithHand = GeyserEdition.TRANSLATORS.getBlockTranslator().getJavaRuntimeIdToCanHarvestWithHand().get(blockId);
+        boolean isWoolBlock = GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeWoolIds().contains(blockId);
+        boolean isCobweb = blockId == GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeCobwebId();
+        String blockToolType = GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeIdToToolType().getOrDefault(blockId, "");
+        boolean canHarvestWithHand = GeyserEdition.BLOCK_TRANSLATOR.getJavaRuntimeIdToCanHarvestWithHand().get(blockId);
         String toolType = "";
         String toolTier = "";
         boolean correctTool = false;

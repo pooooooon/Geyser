@@ -52,8 +52,8 @@ public class Toolbox {
 
     public static final ObjectMapper JSON_MAPPER = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
 
-    private final CompoundTag biomes;
-    private final ItemData[] creativeItems;
+    private CompoundTag biomes;
+    private ItemData[] creativeItems;
 
     private final List<StartGamePacket.ItemEntry> items = new ArrayList<>();
 
@@ -64,7 +64,9 @@ public class Toolbox {
 
     public Toolbox(GeyserEdition edition) {
         this.edition = edition;
+    }
 
+    public void setup() {
         /* Load biomes */
         InputStream biomestream = getResource("data/biome_definitions.dat");
         if (biomestream == null) {

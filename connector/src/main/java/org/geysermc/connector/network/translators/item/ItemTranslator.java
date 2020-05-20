@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 public class ItemTranslator {
 
+    private List<ItemStackTranslator> itemStackTranslators = new ArrayList<>();
     private Int2ObjectMap<ItemStackTranslator> itemTranslators = new Int2ObjectOpenHashMap();
     private List<NbtItemStackTranslator> nbtItemTranslators = new ArrayList<>();
     private final GeyserEdition edition;
@@ -54,21 +55,27 @@ public class ItemTranslator {
         this.edition = edition;
     }
 
+    public void setup() {
+        for(ItemStackTranslator translator : itemStackTranslators) {
+            List<ItemEntry> appliedItems = translator.getAppliedItems();
+            for (ItemEntry item : appliedItems) {
+                ItemStackTranslator registered = itemTranslators.get(item.getJavaId());
+                if (registered != null) {
+                    GeyserConnector.getInstance().getLogger().error("Could not instantiate item translator " + translator.getClass().getCanonicalName() + "." +
+                            " Item translator " + registered.getClass().getCanonicalName() + " is already registered for the item " + item.getJavaIdentifier());
+                    continue;
+                }
+                itemTranslators.put(item.getJavaId(), translator);
+            }
+        }
+    }
+
     public void registerNbtItemStackTranslator(NbtItemStackTranslator translator) {
         nbtItemTranslators.add(translator);
     }
 
     public void registerItemStackTranslator(ItemStackTranslator translator) {
-        List<ItemEntry> appliedItems = translator.getAppliedItems();
-        for (ItemEntry item : appliedItems) {
-            ItemStackTranslator registered = itemTranslators.get(item.getJavaId());
-            if (registered != null) {
-                GeyserConnector.getInstance().getLogger().error("Could not instantiate item translator " + translator.getClass().getCanonicalName() + "." +
-                        " Item translator " + registered.getClass().getCanonicalName() + " is already registered for the item " + item.getJavaIdentifier());
-                continue;
-            }
-            itemTranslators.put(item.getJavaId(), translator);
-        }
+        itemStackTranslators.add(translator);
     }
 
     public ItemStack translateToJava(GeyserSession session, ItemData data) {

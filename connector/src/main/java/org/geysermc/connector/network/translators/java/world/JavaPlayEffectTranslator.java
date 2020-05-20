@@ -72,7 +72,7 @@ public class JavaPlayEffectTranslator extends PacketTranslator<ServerPlayEffectP
                     case BREAK_BLOCK:
                         effect.setType(LevelEventType.DESTROY);
                         BreakBlockEffectData breakBlockEffectData = (BreakBlockEffectData) packet.getData();
-                        effect.setData(GeyserEdition.TRANSLATORS.getBlockTranslator().getBedrockBlockId(breakBlockEffectData.getBlockState()));
+                        effect.setData(GeyserEdition.BLOCK_TRANSLATOR.getBedrockBlockId(breakBlockEffectData.getBlockState()));
                         break;
                     case EXPLOSION:
                         effect.setType(LevelEventType.PARTICLE_LARGE_EXPLOSION);

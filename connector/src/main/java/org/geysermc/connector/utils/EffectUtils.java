@@ -58,7 +58,9 @@ public class EffectUtils {
 
     public EffectUtils(GeyserEdition edition) {
         this.edition = edition;
+    }
 
+    public void setup() {
         /* Load particles */
         InputStream particleStream = GeyserEdition.TOOLBOX.getResource("mappings/particles.json");
         JsonNode particleEntries;

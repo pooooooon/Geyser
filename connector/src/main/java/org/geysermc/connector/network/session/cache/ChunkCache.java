@@ -76,11 +76,11 @@ public class ChunkCache {
 
     public BlockState getBlockAt(Position position) {
         if (!cache) {
-            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
+            return GeyserEdition.BLOCK_TRANSLATOR.getAir();
         }
         ChunkPosition chunkPosition = new ChunkPosition(position.getX() >> 4, position.getZ() >> 4);
         if (!chunks.containsKey(chunkPosition))
-            return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
+            return GeyserEdition.BLOCK_TRANSLATOR.getAir();
 
         Column column = chunks.get(chunkPosition);
         Chunk chunk = column.getChunks()[position.getY() >> 4];
@@ -89,7 +89,7 @@ public class ChunkCache {
             return chunk.get(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
         }
 
-        return GeyserEdition.TRANSLATORS.getBlockTranslator().getAir();
+        return GeyserEdition.BLOCK_TRANSLATOR.getAir();
     }
 
     public void removeChunk(ChunkPosition position) {

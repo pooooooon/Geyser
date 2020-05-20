@@ -70,7 +70,6 @@ public class Translators {
     private final GeyserEdition edition;
 
     private final Map<String, BlockEntityTranslator> blockEntityTranslators = new HashMap<>();
-    protected BlockTranslator blockTranslator;
 
     public Translators(GeyserEdition edition) {
         this.edition = edition;
@@ -88,6 +87,10 @@ public class Translators {
         } catch (IOException e) {
             throw new AssertionError("Unable to generate empty level chunk data");
         }
+    }
+
+    public void setup() {
+        itemTranslator.setup();
     }
 
     public Translators registerJavaPacketTranslator(Class<? extends Packet> packet, PacketTranslator<? extends Packet> translator) {
@@ -123,11 +126,6 @@ public class Translators {
 
     public Translators registerSoundInteractionHandler(SoundInteractionHandler<?> handler) {
         soundHandlerRegistry.registerSoundInteractionHandler(handler);
-        return this;
-    }
-
-    public Translators registerBlockTranslator(BlockTranslator blockTranslator) {
-        this.blockTranslator = blockTranslator;
         return this;
     }
 
