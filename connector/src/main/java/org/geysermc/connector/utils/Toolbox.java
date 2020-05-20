@@ -205,8 +205,7 @@ public class Toolbox {
         // First try open file under a resources folder. We use this try format so we don't close it
         try {
             return new FileInputStream(Paths.get("resources", resource).toFile());
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) { }
 
         InputStream stream = Toolbox.class.getClassLoader().getResourceAsStream(resource);
         if (stream == null) {
