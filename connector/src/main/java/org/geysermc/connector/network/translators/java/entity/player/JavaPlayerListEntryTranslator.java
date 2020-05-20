@@ -47,37 +47,58 @@ public class JavaPlayerListEntryTranslator extends PacketTranslator<ServerPlayer
         translate.setAction(packet.getAction() == PlayerListEntryAction.ADD_PLAYER ? PlayerListPacket.Action.ADD : PlayerListPacket.Action.REMOVE);
 
         for (PlayerListEntry entry : packet.getEntries()) {
-            if (packet.getAction() == PlayerListEntryAction.ADD_PLAYER) {
-                boolean self = entry.getProfile().getId().equals(session.getPlayerEntity().getUuid());
+            switch (packet.getAction()) {
+                case ADD_PLAYER:
+                    PlayerEntity playerEntity;
 
-                PlayerEntity playerEntity = session.getPlayerEntity();
-                if (self) playerEntity.setProfile(entry.getProfile());
-                else {
-                    playerEntity = new PlayerEntity(
-                            entry.getProfile(),
-                            -1,
-                            session.getEntityCache().getNextEntityId().incrementAndGet(),
-                            Vector3f.ZERO,
-                            Vector3f.ZERO,
-                            Vector3f.ZERO
-                    );
-                }
+                    if (entry.getProfile().getId().equals(session.getPlayerEntity().getUuid())) {
+                        // Entity is ourself
+                        playerEntity = session.getPlayerEntity();
+                    } else {
+                        playerEntity = session.getEntityCache().getPlayerEntity(entry.getProfile().getId());
+                    }
 
-                playerEntity.setPlayerList(true);
-                playerEntity.setValid(true);
-                session.getEntityCache().addPlayerEntity(playerEntity);
+                    if (playerEntity == null) {
+                        // It's a new player
+                        playerEntity = new PlayerEntity(
+                                entry.getProfile(),
+                                -1,
+                                session.getEntityCache().getNextEntityId().incrementAndGet(),
+                                Vector3f.ZERO,
+                                Vector3f.ZERO,
+                                Vector3f.ZERO
+                        );
+                    }
 
-                translate.getEntries().add(GeyserEdition.SKIN_UTILS.buildCachedEntry(entry.getProfile(), playerEntity.getGeyserId()));
-            } else {
-                PlayerEntity entity = session.getEntityCache().getPlayerEntity(entry.getProfile().getId());
-                if (entity != null && entity.isValid()) {
-                    // remove from tablist but player entity is still there
-                    entity.setPlayerList(false);
-                } else {
-                    // just remove it from caching
-                    session.getEntityCache().removePlayerEntity(entry.getProfile().getId());
-                }
-                translate.getEntries().add(new PlayerListPacket.Entry(entry.getProfile().getId()));
+                    session.getEntityCache().addPlayerEntity(playerEntity);
+
+                    playerEntity.setProfile(entry.getProfile());
+                    playerEntity.setPlayerList(true);
+                    playerEntity.setValid(true);
+
+                    System.err.println("Add player: " + playerEntity + " - " + playerEntity.getEntityId());
+
+                    translate.getEntries().add(GeyserEdition.SKIN_UTILS.buildCachedEntry(entry.getProfile(), playerEntity.getGeyserId()));
+                    break;
+                case REMOVE_PLAYER:
+                    PlayerEntity entity = session.getEntityCache().getPlayerEntity(entry.getProfile().getId());
+                    if (entity != null && entity.isValid()) {
+                        System.err.println("Remove but isValie: " + entity + " - " + entity.getEntityId());
+                        // remove from tablist but player entity is still there
+                        entity.setPlayerList(false);
+                    } else {
+                        // just remove it from caching
+                        if (entity == null) {
+                            System.err.println("Remove1");
+                            session.getEntityCache().removePlayerEntity(entry.getProfile().getId());
+                        } else {
+                            entity.setPlayerList(false);
+                            System.err.println("Remove2: " + entity + " - " + entity.getEntityId());
+                            session.getEntityCache().removeEntity(entity, false);
+                        }
+                    }
+                    translate.getEntries().add(new PlayerListPacket.Entry(entry.getProfile().getId()));
+                    break;
             }
         }
 
