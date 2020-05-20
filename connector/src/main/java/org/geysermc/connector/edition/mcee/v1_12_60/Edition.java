@@ -39,6 +39,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacke
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerStopSoundPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityAnimationPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityAttachPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityCollectItemPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityDestroyPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEffectPacket;
@@ -169,6 +170,7 @@ import org.geysermc.connector.network.translators.java.JavaRespawnTranslator;
 import org.geysermc.connector.network.translators.java.JavaServerDeclareCommandsTranslator;
 import org.geysermc.connector.network.translators.java.JavaTitleTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityAnimationTranslator;
+import org.geysermc.connector.network.translators.java.entity.JavaEntityAttachTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityDestroyTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityEffectTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityEquipmentTranslator;
@@ -350,7 +352,8 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerEntityRotationPacket.class, new JavaEntityRotationTranslator())
                 .registerJavaPacketTranslator(ServerEntityStatusPacket.class, new JavaEntityStatusTranslator())
                 .registerJavaPacketTranslator(ServerEntityTeleportPacket.class, new JavaEntityTeleportTranslator())
-                .registerJavaPacketTranslator(ServerEntityVelocityPacket.class, new JavaEntityVelocityTranslator());
+                .registerJavaPacketTranslator(ServerEntityVelocityPacket.class, new JavaEntityVelocityTranslator())
+                .registerJavaPacketTranslator(ServerEntityAttachPacket.class, new JavaEntityAttachTranslator());
 
         // Register Java Entity Player Packet Translators
         translators

@@ -39,6 +39,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.server.ServerRespawnPacke
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerStopSoundPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerTitlePacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityAnimationPacket;
+import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityAttachPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityCollectItemPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityDestroyPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEffectPacket;
@@ -115,6 +116,7 @@ import com.nukkitx.protocol.bedrock.packet.TextPacket;
 import com.nukkitx.protocol.bedrock.v390.Bedrock_v390;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.GeyserEdition;
+import org.geysermc.connector.network.translators.Translators;
 import org.geysermc.connector.network.translators.bedrock.BedrockActionTranslator;
 import org.geysermc.connector.network.translators.bedrock.BedrockAnimateTranslator;
 import org.geysermc.connector.network.translators.bedrock.BedrockBlockEntityDataTranslator;
@@ -132,6 +134,18 @@ import org.geysermc.connector.network.translators.bedrock.BedrockRespawnTranslat
 import org.geysermc.connector.network.translators.bedrock.BedrockSetLocalPlayerAsInitializedTranslator;
 import org.geysermc.connector.network.translators.bedrock.BedrockShowCreditsTranslator;
 import org.geysermc.connector.network.translators.bedrock.BedrockTextTranslator;
+import org.geysermc.connector.network.translators.inventory.AnvilInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.BlockInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.BrewingInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.CraftingInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.DoubleChestInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.FurnaceInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.GrindstoneInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.PlayerInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.SingleChestInventoryTranslator;
+import org.geysermc.connector.network.translators.inventory.updater.ContainerInventoryUpdater;
+import org.geysermc.connector.network.translators.inventory.updater.InventoryUpdater;
 import org.geysermc.connector.network.translators.item.translators.BannerTranslator;
 import org.geysermc.connector.network.translators.item.translators.PotionTranslator;
 import org.geysermc.connector.network.translators.item.translators.nbt.BasicItemTranslator;
@@ -151,6 +165,7 @@ import org.geysermc.connector.network.translators.java.JavaRespawnTranslator;
 import org.geysermc.connector.network.translators.java.JavaServerDeclareCommandsTranslator;
 import org.geysermc.connector.network.translators.java.JavaTitleTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityAnimationTranslator;
+import org.geysermc.connector.network.translators.java.entity.JavaEntityAttachTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityDestroyTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityEffectTranslator;
 import org.geysermc.connector.network.translators.java.entity.JavaEntityEquipmentTranslator;
@@ -225,25 +240,12 @@ import org.geysermc.connector.network.translators.world.block.entity.EndGatewayB
 import org.geysermc.connector.network.translators.world.block.entity.ShulkerBoxBlockEntityTranslator;
 import org.geysermc.connector.network.translators.world.block.entity.SignBlockEntityTranslator;
 import org.geysermc.connector.network.translators.world.block.entity.SkullBlockEntityTranslator;
-import org.geysermc.connector.utils.EntityUtils;
-import org.geysermc.connector.network.translators.Translators;
-import org.geysermc.connector.network.translators.inventory.AnvilInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.BlockInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.BrewingInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.CraftingInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.DoubleChestInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.FurnaceInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.GrindstoneInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.InventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.PlayerInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.SingleChestInventoryTranslator;
-import org.geysermc.connector.network.translators.inventory.updater.ContainerInventoryUpdater;
-import org.geysermc.connector.network.translators.inventory.updater.InventoryUpdater;
 import org.geysermc.connector.utils.BlockEntityUtils;
 import org.geysermc.connector.utils.BlockUtils;
 import org.geysermc.connector.utils.ChunkUtils;
 import org.geysermc.connector.utils.DimensionUtils;
 import org.geysermc.connector.utils.EffectUtils;
+import org.geysermc.connector.utils.EntityUtils;
 import org.geysermc.connector.utils.InventoryUtils;
 import org.geysermc.connector.utils.ItemUtils;
 import org.geysermc.connector.utils.LoginEncryptionUtils;
@@ -340,7 +342,8 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerEntityRotationPacket.class, new JavaEntityRotationTranslator())
                 .registerJavaPacketTranslator(ServerEntityStatusPacket.class, new JavaEntityStatusTranslator())
                 .registerJavaPacketTranslator(ServerEntityTeleportPacket.class, new JavaEntityTeleportTranslator())
-                .registerJavaPacketTranslator(ServerEntityVelocityPacket.class, new JavaEntityVelocityTranslator());
+                .registerJavaPacketTranslator(ServerEntityVelocityPacket.class, new JavaEntityVelocityTranslator())
+                .registerJavaPacketTranslator(ServerEntityAttachPacket.class, new JavaEntityAttachTranslator());
 
         // Register Java Entity Player Packet Translators
         translators
@@ -352,6 +355,7 @@ public class Edition extends GeyserEdition {
                 .registerJavaPacketTranslator(ServerPlayerPositionRotationPacket.class, new JavaPlayerPositionRotationTranslator())
                 .registerJavaPacketTranslator(ServerPlayerSetExperiencePacket.class, new JavaPlayerSetExperienceTranslator())
                 .registerJavaPacketTranslator(ServerStopSoundPacket.class, new JavaPlayerStopSoundTranslator());
+
 
         // Register Java Entity Spawn Packet Translators
         translators
