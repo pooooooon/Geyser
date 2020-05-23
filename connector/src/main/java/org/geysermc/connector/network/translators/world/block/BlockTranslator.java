@@ -119,7 +119,7 @@ public class BlockTranslator {
 
         // Load Block Overrides
         JsonNode blocksOverride = null;
-        try (InputStream is = Toolbox.getResource("overrides/blocks.json")) {
+        try (InputStream is = GeyserEdition.TOOLBOX.getResource("overrides/blocks.json")) {
             blocksOverride = Toolbox.JSON_MAPPER.readTree(is);
         } catch (IOException | AssertionError ignored) {
         }
