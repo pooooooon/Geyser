@@ -204,7 +204,7 @@ public class Toolbox {
         String resourceName = edition.getEdition().replace(".", "_") + "/" + edition.getVersion().replace(".", "_") + "/" + resource;
         // First try open file under a resources folder. We use this try format so we don't close it
         try {
-            return new FileInputStream(Paths.get("resources", resource).toFile());
+            return new FileInputStream(Paths.get("resources", resourceName).toFile());
         } catch (IOException ignored) {
         }
 
